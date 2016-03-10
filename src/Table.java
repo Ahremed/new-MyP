@@ -552,12 +552,12 @@ public class Table {
         return cll;
     }
 
-    private int getRnd(BufferedImage r) {
+    public int getRnd(BufferedImage r) {
         int rnd;
-        if ((r.getRGB(x + 395, y + 210) & 0x0000ff00) >> 16 > 200) rnd = 5;
-        else if ((r.getRGB(x + 350, y + 210) & 0x0000ff00) >> 16 > 200) rnd = 4;
-        else if ((r.getRGB(x + 305, y + 210) & 0x0000ff00) >> 16 > 200) rnd = 3;
-        else rnd = 0;
+        if ((r.getRGB(x + 395, y + 210) & 0x00ff0000) >> 16 > 200) rnd = 5;
+        else if ((r.getRGB(x + 350, y + 210) & 0x00ff0000) >> 16 > 200) rnd = 4;
+        else if ((r.getRGB(x + 305, y + 210) & 0x00ff0000) >> 16 > 200) rnd = 3;
+        else rnd = 1;
         return rnd;
     }
 
@@ -582,17 +582,17 @@ public class Table {
     }
 
     public int move(BufferedImage r) {
+        getMyCards(r);
         if (checkRaise(r) && checkFold(r)) return fullMove(r);
         else if (checkFold(r)) return quiqMove(r);
         else return 0;
     }
 
     private int quiqMove(BufferedImage r) {
-        int move = 0;
-        int pos = readPos(r);
-        getMyCards(r);
+        int move = 0,
+                pos = readPos(r),
+                pot = getPot(r);
         int mc1 = myCards.get(0).getValue(), mc2 = myCards.get(1).getValue();
-
         if (pos > 5) {                                                             //=============late pos
             if (pos < 7 && mc1 + mc2 < 15 && mc1 < 10 && mc2 < 10) move = 10;
             if (pos < 7 && mc1 + mc2 < 7 && mc2 == mc1) move = 10;
@@ -605,9 +605,7 @@ public class Table {
     }
 
     private int fullMove(BufferedImage r) {
-        getMyCards(r);
-        int move = 0,
-                mp = readPos(r),
+        int     mp = readPos(r),
                 pot = getPot(r),
                 ops = getOps(r),
                 rnd = getRnd(r),
@@ -629,10 +627,9 @@ public class Table {
                         if (mc1 + mc2 > 17 && mc1 > 10) rs1 = 1;
                         if (mc1 + mc2 > 17 && mc2 > 10) rs1 = 1;
                         if (mc1 + mc2 > 7 && mc2 == mc1) rs1 = 1;
-
                     } else                   //========== >0 ops
                     {
-                        if (((pot - 0.03) / ops) == 0.02)    //only calls
+                        if (((pot - 3) / ops) == 2)    //only calls
                         {
                             if (ops > 1 && mc1 == mc2 && mc1 + mc2 > 13) cll = 1;
                             if (ops > 1 && mc1 == mc2 && sumcll / pot <= 20 / 100) cll = 1;

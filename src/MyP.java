@@ -112,8 +112,7 @@ public class MyP extends JFrame {
                 }
                 dt2 = new Date();
                 speed = dt2.getTime() - dt.getTime();
-                textField.setText(String.valueOf(speed)+ "x1 = "+table1.getXPot(1,image)+"x2 = "+table1.getXPot(2,image)+
-                        "x3 = "+table1.getXPot(3,image));
+                textField.setText(String.valueOf(speed)+" Rnd = "+table1.getRnd(image));
                 try {
                     sleep(10);
                 } catch (InterruptedException e) {
