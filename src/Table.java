@@ -2,6 +2,7 @@
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 
 
 /**
@@ -13,6 +14,7 @@ public class Table {
     private int lastPos;
     public ArrayList<Card> myCards;
     public ArrayList<Card> boardCards;
+    private BufferedImage r;
 
     public int getX() {
         return this.x;
@@ -52,10 +54,6 @@ public class Table {
     public boolean checkSuite() {
         if (myCards.get(0).getSuit().equals(myCards.get(1).getSuit())) return true;
         else return false;
-    }
-
-    public int getSumMyCards() {
-        return myCards.get(0).getValue() + myCards.get(1).getValue();
     }
 
     public int readPos(BufferedImage r) {
@@ -162,8 +160,8 @@ public class Table {
     }
 
     public void getMyCards(BufferedImage r) {
-        myCards.add(0, new Card(readCard(x + 284, y + 299, r), readSuit(x + 288, y + 318, r)));
-        myCards.add(1, new Card(readCard(x + 323, y + 299, r), readSuit(x + 327, y + 318, r)));
+        myCards.set(0, new Card(readCard(x + 284, y + 299, r), readSuit(x + 288, y + 318, r)));
+        myCards.set(1, new Card(readCard(x + 323, y + 299, r), readSuit(x + 327, y + 318, r)));
     }
 
     private int readCard(int x1, int x2, BufferedImage r) {
@@ -279,6 +277,7 @@ public class Table {
     }
 
     public boolean checkFold(BufferedImage r) {
+        this.r=r;
         boolean move;
         if (((r.getRGB(x + 395, y + 425) & 0x00ff0000) >> 16) > 100) move = true;
         else move = false;
@@ -562,26 +561,201 @@ public class Table {
     }
 
     public void readBoardCards(BufferedImage r) {
+        boardCards.clear();
         int[] xc = {212, 257, 302, 347, 392};
         int[] xs = {216, 261, 306, 351, 396};
         int rnd = getRnd(r);
         if (rnd > 1) {
             for (int i = 0; i < rnd; i++) {
-                boardCards.add(i, new Card(readCard(x + xc[i], y + 210, r), readSuit(x + xc[i], y + 191, r)));
+                boardCards.set(i, new Card(readCard(x + xc[i], y + 210, r), readSuit(x + xc[i], y + 191, r)));
             }
         }
     }
 
-    public void getCombination() {
-        int z1 = 0, z2 = 0;
+    private boolean isFlash() {
+        int cd = 0, cs = 0, ch = 0, cc = 0, mc = 0;
+        char maxs;
+        for (Card card : myCards) {
+            switch (card.getSuit()) {
+                case 'c':
+                    cc++;
+                    break;
+                case 'd':
+                    cd++;
+                    break;
+                case 'h':
+                    ch++;
+                    break;
+                case 's':
+                    cs++;
+                    break;
+            }
+        }
+        for (Card card : boardCards) {
+            switch (card.getSuit()) {
+                case 'c':
+                    cc++;
+                    break;
+                case 'd':
+                    cd++;
+                    break;
+                case 'h':
+                    ch++;
+                    break;
+                case 's':
+                    cs++;
+                    break;
+            }
+        }
+        if (cc > cd && cc > ch && cc > cs) {
+            mc = cc;
+            maxs = 'c';
+        } else if (ch > cd && ch > cc && ch > cs) {
+            mc = ch;
+            maxs = 'h';
+        } else if (cd > cc && cd > ch && cd > cs) {
+            mc = cd;
+            maxs = 'd';
+        } else if (cs > cd && cs > ch && cs > cc) {
+            mc = cs;
+            maxs = 's';
+        } else maxs = 'n';
+        if (mc >= 5 && (myCards.get(0).getSuit().equals(maxs) & myCards.get(0).getValue() >= 12 ||
+                myCards.get(1).getSuit().equals(maxs) & myCards.get(1).getValue() >= 12)) return true;
+        else return false;
+    }
+
+    private boolean isStrit() {
+        Integer[] cards = new Integer[getRnd(r) + 2];
+        ArrayList<Integer> cards2 = new ArrayList<>();
+        int j = 0, dif = 0, n = 0;
+        for (Card card : myCards) {
+            cards[j] = card.getValue();
+            j++;
+        }
+        for (Card card : boardCards) {
+            cards[j] = card.getValue();
+            j++;
+        }
+        Arrays.sort(cards, Collections.reverseOrder());
+
+        for (int i = 0; i < cards.length; i++) {
+            if (cards[i + 1] != cards[i]) {
+                cards2.add(cards[i]);
+                n++;
+            }
+        }
+        if (cards2.size() < 5) return false;
+
+        switch (cards2.size()) {
+            case 5: {
+                for (int i = 0; i < 4; i++) {
+                    dif = cards2.get(i) - cards2.get(i + 1) - 1;
+                }
+                break;
+            }
+            case 6: {
+                for (int i = 0; i < 4; i++) {
+                    dif = cards2.get(i) - cards2.get(i + 1) - 1;
+                }
+                if (dif == 0) break;
+                else dif = 0;
+                for (int i = 1; i < 5; i++) {
+                    dif = cards2.get(i) - cards2.get(i + 1) - 1;
+                }
+                break;
+            }
+            case 7: {
+                for (int i = 0; i < 4; i++) {
+                    dif = cards2.get(i) - cards2.get(i + 1) - 1;
+                }
+                if (dif == 0) break;
+                else dif = 0;
+                for (int i = 1; i < 5; i++) {
+                    dif = cards2.get(i) - cards2.get(i + 1) - 1;
+                }
+                if (dif == 0) break;
+                else dif = 0;
+                for (int i = 2; i < 6; i++) {
+                    dif = cards2.get(i) - cards2.get(i + 1) - 1;
+                }
+                break;
+            }
+        }
+        if (dif == 0) return true;
+        else return false;
+    }
+
+    public int getCombination() {
+        int z1 = 0,
+                z2 = 0,
+                z3 = 0,
+                z4 = 0,
+                cmb = 0,
+                t = 0,
+                t2 = 0,
+                t3 = 0,
+                mbrd = 0,
+                mc1 = myCards.get(0).getValue(),
+                mc2 = myCards.get(1).getValue();
+        Integer[] brd = new Integer[5];
 
         for (Card bc : boardCards) {
             if (myCards.get(0).getValue() == bc.getValue()) z1++;
-            if (myCards.get(1).getValue() == bc.getValue()) z1++;
+            if (myCards.get(1).getValue() == bc.getValue()) z2++;
         }
+
+        for (Card card : boardCards) {
+            int i = 0;
+            if (card.getValue() > mbrd) mbrd = card.getValue();
+            brd[i] = card.getValue();
+            i++;
+        }
+
+        for (int i = 0; i < 4; i++) {
+            for (int j = i + 1; j < 5; i++) {
+                if (brd[i] == brd[j] && brd[j] > 0) {
+                    if (z3 == 0) {
+                        z3++;
+                        t = brd[i];
+                    } else if (brd[j] == t) z3++;
+                    else {
+                        z4++;
+                        t2 = brd[j];
+                    }
+                }
+            }
+        }
+
+        if (z3 == 3) for (int i = 0; i < 5; i++) if (brd[i] > t3 && brd[i] != t) t3 = brd[i];
+        if (z4 == 3) for (int i = 0; i < 5; i++) if (brd[i] > t3 && brd[i] != t2) t3 = brd[i];
+        if (mbrd == mc1 || mbrd == mc2) cmb = 1;                                     //=====Top pair
+        if (mc1 == mc2 && mc1 > mbrd) cmb = 2;                                       //=====Overpair
+        if (z1 == 1 && z2 == 1 && mc1 != mc2) cmb = 3;                              //=====Two pairs
+        if ((z1 == 2 && z2 == 0) || (z1 == 0 && z2 == 2)) cmb = 4;                   //=====Triple
+        if (z1 == 1 && z2 == 1 && mc1 == mc2) cmb = 5;                             //======Set
+        if (isStrit()) cmb = 6;                                                       //======Strit
+        if (isFlash()) cmb = 7;                                                        //======Flesh
+        if ((z3 == 3 && z4 == 1) || (z3 == 1 && z4 == 3)) cmb = 8;                                                                  //======FullHouse board
+        if ((z1 == 2 && z2 == 1) || (z1 == 1 && z2 == 2)) cmb = 9;                     //======FullHouse
+        if (z1 == 1 && z2 == 1 && mc1 == mc2 && z3 == 1 && mc1 != t) cmb = 9;          //======FullHouse
+        if (z1 == 1 && z2 == 1 && mc1 == mc2 && z4 == 1 && mc1 != t2) cmb = 9;
+        if (z3 == 3 && z1 == 1 && z2 == 0 && mc1 != t) cmb = 9;
+        if (z3 == 3 && z1 == 0 && z2 == 1 && mc2 != t) cmb = 9;
+        if (z3 == 1 && z4 == 1 && mc1 == t) cmb = 9;
+        if (z3 == 1 && z4 == 1 && mc1 == t2) cmb = 9;
+        if (z3 == 1 && z4 == 1 && mc2 == t) cmb = 9;
+        if (z3 == 1 && z4 == 1 && mc2 == t2) cmb = 9;
+        if (z3 == 3 && mc1 == mc2 && mc1 > t3) cmb = 9;
+        if (z4 == 3 && mc1 == mc2 && mc1 > t3) cmb = 9;
+        if (z1 == 2 && z2 == 2 && mc1 == mc2) cmb = 10;                                      //======Care
+        if (z1 == 3 || z2 == 3) cmb = 10;
+        if (z3 == 6 || z4 == 6) cmb = 20;
+        return cmb;
     }
 
     public int move(BufferedImage r) {
+        this.r=r;
         getMyCards(r);
         if (checkRaise(r) && checkFold(r)) return fullMove(r);
         else if (checkFold(r)) return quiqMove(r);

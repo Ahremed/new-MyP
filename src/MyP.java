@@ -107,6 +107,7 @@ public class MyP extends JFrame {
                 table1.getMyCards(image);
                 textField4.setText(String.valueOf(table1.myCards.get(0).getValue()) + table1.myCards.get(0).getSuit() +
                         +table1.myCards.get(1).getValue() + table1.myCards.get(1).getSuit());
+                textField5.setText("");
                 if (table1.checkFold(image)) {
                     textField5.setText(String.valueOf(table1.move(image)));
                 }
