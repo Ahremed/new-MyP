@@ -1,4 +1,5 @@
 
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -11,7 +12,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * Created by Vladyslav on 26.12.2015.
  */
 public class MyP extends JFrame {
-    private JTextField textField, textField2, textField3, textField4, textField5;
+    private JTextField textField, textField2, textField3, textField4, textField5, textField6;
     private static AtomicBoolean paused = new AtomicBoolean(true);
     private JCheckBox CPause, CStop;
     private play pl = new play();
@@ -46,6 +47,9 @@ public class MyP extends JFrame {
         textField5 = new JTextField();
         panel.add(textField5);
         textField5.setColumns(20);
+        textField6 = new JTextField();
+        panel.add(textField6);
+        textField6.setColumns(20);
         CPause = new JCheckBox("Pause");
         panel.add(CPause);
         CStop = new JCheckBox("Stop");
@@ -81,14 +85,15 @@ public class MyP extends JFrame {
         }
     }
 
-    class play extends Thread {
+    class play extends Thread  {
         @Override
-        public void run() {
+        public void run()   {
             Table table1 = new Table(0, 0);
             Date dt, dt2;
             long speed;
+            String st;
 
-            while (true) {
+            while (true)  {
                 try {
                     r = new Robot();
                 } catch (AWTException e1) {
@@ -100,20 +105,26 @@ public class MyP extends JFrame {
                  red = (color & 0x00ff0000) >> 16;
                  green = (color & 0x0000ff00) >> 8;
                  blue = color & 0x000000ff;*/
-                textField2.setText("Ops= " + table1.getOps(image) + " Opps = " + table1.getOpps(image) + "Stack="
-                        + table1.getStack(image));
-                textField3.setText("Pot= " + table1.getPot(image) + " Call = " + table1.getCall(image) + " Rs = "
-                        + table1.getRaise(image));
-                table1.getMyCards(image);
-                textField4.setText(String.valueOf(table1.myCards.get(0).getValue()) + table1.myCards.get(0).getSuit() +
-                        +table1.myCards.get(1).getValue() + table1.myCards.get(1).getSuit());
-                textField5.setText("");
-                if (table1.checkFold(image)) {
-                    textField5.setText(String.valueOf(table1.move(image)));
+
+                    textField2.setText("Ops= " + table1.getOps(image) + " Opps = " + table1.getOpps(image) + "Stack="
+                            + table1.getStack(image));
+                    textField3.setText("Pot= " + table1.getPot(image) + " Call = " + table1.getCall(image) + " Rs = "
+                            + table1.getRaise(image));
+                    table1.getMyCards(image);
+                    textField4.setText(String.valueOf(table1.myCards.get(0).getValue()) + table1.myCards.get(0).getSuit() +
+                            +table1.myCards.get(1).getValue() + table1.myCards.get(1).getSuit());
+                    textField5.setText("");
+                    if (table1.checkFold(image)) {
+                        textField5.setText(String.valueOf(table1.move(image)));
+                    }
+                    dt2 = new Date();
+                    speed = dt2.getTime() - dt.getTime();
+                     textField.setText(String.valueOf(speed) + " Rnd = " + table1.getRnd(image));
+                st=" ";
+                for (Table.Card card:table1.boardCards){
+                    st+=String.valueOf(card.getValue())+card.getSuit()+" ";
                 }
-                dt2 = new Date();
-                speed = dt2.getTime() - dt.getTime();
-                textField.setText(String.valueOf(speed)+" Rnd = "+table1.getRnd(image));
+                if (table1.getRnd(image)>1) textField6.setText("Comb = " + table1.getCombination()+st);
                 try {
                     sleep(10);
                 } catch (InterruptedException e) {
@@ -123,7 +134,7 @@ public class MyP extends JFrame {
         }
     }
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws Exception {
         javax.swing.SwingUtilities.invokeLater(new Runnable() {
             public void run() {
                 JFrame.setDefaultLookAndFeelDecorated(true);

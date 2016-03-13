@@ -160,8 +160,13 @@ public class Table {
     }
 
     public void getMyCards(BufferedImage r) {
-        myCards.set(0, new Card(readCard(x + 284, y + 299, r), readSuit(x + 288, y + 318, r)));
-        myCards.set(1, new Card(readCard(x + 323, y + 299, r), readSuit(x + 327, y + 318, r)));
+        if (myCards.size()==0){
+        myCards.add(0, new Card(readCard(x + 284, y + 299, r), readSuit(x + 288, y + 318, r)));
+        myCards.add(1, new Card(readCard(x + 323, y + 299, r), readSuit(x + 327, y + 318, r)));}
+        else{
+            myCards.set(0, new Card(readCard(x + 284, y + 299, r), readSuit(x + 288, y + 318, r)));
+            myCards.set(1, new Card(readCard(x + 323, y + 299, r), readSuit(x + 327, y + 318, r)));
+        }
     }
 
     private int readCard(int x1, int x2, BufferedImage r) {
@@ -553,9 +558,9 @@ public class Table {
 
     public int getRnd(BufferedImage r) {
         int rnd;
-        if ((r.getRGB(x + 395, y + 210) & 0x00ff0000) >> 16 > 200) rnd = 5;
-        else if ((r.getRGB(x + 350, y + 210) & 0x00ff0000) >> 16 > 200) rnd = 4;
-        else if ((r.getRGB(x + 305, y + 210) & 0x00ff0000) >> 16 > 200) rnd = 3;
+        if (((r.getRGB(x + 395, y + 200) & 0x00ff0000) >> 16) > 200) rnd = 5;
+        else if (((r.getRGB(x + 350, y + 200) & 0x00ff0000) >> 16) > 200) rnd = 4;
+        else if (((r.getRGB(x + 305, y + 200) & 0x00ff0000) >> 16) > 200) rnd = 3;
         else rnd = 1;
         return rnd;
     }
@@ -567,7 +572,7 @@ public class Table {
         int rnd = getRnd(r);
         if (rnd > 1) {
             for (int i = 0; i < rnd; i++) {
-                boardCards.set(i, new Card(readCard(x + xc[i], y + 210, r), readSuit(x + xc[i], y + 191, r)));
+                boardCards.add(i, new Card(readCard(x + xc[i], y + 172, r), readSuit(x + xs[i], y + 191, r)));
             }
         }
     }
@@ -639,7 +644,7 @@ public class Table {
         }
         Arrays.sort(cards, Collections.reverseOrder());
 
-        for (int i = 0; i < cards.length; i++) {
+        for (int i = 0; i < cards.length-1; i++) {
             if (cards[i + 1] != cards[i]) {
                 cards2.add(cards[i]);
                 n++;
@@ -687,6 +692,7 @@ public class Table {
     }
 
     public int getCombination() {
+        readBoardCards(r);
         int z1 = 0,
                 z2 = 0,
                 z3 = 0,
@@ -698,11 +704,11 @@ public class Table {
                 mbrd = 0,
                 mc1 = myCards.get(0).getValue(),
                 mc2 = myCards.get(1).getValue();
-        Integer[] brd = new Integer[5];
+        Integer[] brd={0,0,0,0,0};
 
         for (Card bc : boardCards) {
-            if (myCards.get(0).getValue() == bc.getValue()) z1++;
-            if (myCards.get(1).getValue() == bc.getValue()) z2++;
+            if (mc1 == bc.getValue()) z1++;
+            if (mc2 == bc.getValue()) z2++;
         }
 
         for (Card card : boardCards) {
@@ -713,7 +719,7 @@ public class Table {
         }
 
         for (int i = 0; i < 4; i++) {
-            for (int j = i + 1; j < 5; i++) {
+            for (int j = i + 1; j < 5; j++) {
                 if (brd[i] == brd[j] && brd[j] > 0) {
                     if (z3 == 0) {
                         z3++;
@@ -757,6 +763,7 @@ public class Table {
     public int move(BufferedImage r) {
         this.r=r;
         getMyCards(r);
+        readBoardCards(r);
         if (checkRaise(r) && checkFold(r)) return fullMove(r);
         else if (checkFold(r)) return quiqMove(r);
         else return 0;
