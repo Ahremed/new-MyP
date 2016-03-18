@@ -59,27 +59,30 @@ public class MyP extends JFrame {
         button1.addActionListener(actionListener);
         button2.addActionListener(actionListener2);
         getContentPane().add(panel);
-        setPreferredSize(new Dimension(300, 200));
+        setPreferredSize(new Dimension(250, 300));
     }
 
     public class TestActionListener implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent e) {
             synchronized (this) {
-                pl.start();
-                paused.set(false);
+                try {pl.start();
+                paused.set(false);}
+                catch (Exception a){}
             }
         }
     }
 
     public class TestActionListener2 implements ActionListener {
         public void actionPerformed(ActionEvent e) {
-            if (paused.get() == true) {
-                paused.set(false);
-                pl.suspend();
+            if (paused.get()) {
+                try {paused.set(false);
+                pl.suspend();}
+                catch (Exception a){}
             } else {
-                paused.set(true);
-                pl.resume();
+                try{paused.set(true);
+                pl.resume();}
+                catch (Exception a){}
             }
             textField2.setText(String.valueOf(paused));
         }
