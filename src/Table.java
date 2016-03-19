@@ -11,7 +11,8 @@ import java.util.Collections;
 public class Table {
     private int x, y;
     private ArrayList<Card> lastCards;
-    private int lastPos, last_pot;
+    private int lastPos;
+    float lastpot;
     public ArrayList<Card> myCards;
     public ArrayList<Card> boardCards;
     private BufferedImage r;
@@ -52,11 +53,6 @@ public class Table {
         lastCards = new ArrayList<>();
         myCards = new ArrayList<>();
         boardCards = new ArrayList<>();
-    }
-
-    public boolean checkSuite() {
-        if (myCards.get(0).getSuit().equals(myCards.get(1).getSuit())) return true;
-        else return false;
     }
 
     public int readPos(BufferedImage r) {
@@ -320,7 +316,7 @@ public class Table {
 
     public boolean firstMove(BufferedImage r) {
         boolean move;
-        if (lastCards.equals(myCards) & lastPos == readPos(r)) move = false;
+        if (lastCards.equals(myCards) && lastPos == readPos(r) && lastpot < getPot(r)) move = false;
         else move = true;
         return move;
     }
@@ -795,23 +791,29 @@ public class Table {
 
     private int fullMove(BufferedImage r) {
         int mp = readPos(r),
-                pot = getPot(r),
                 ops = getOps(r),
                 rnd = getRnd(r),
                 mc1 = myCards.get(0).getValue(), mc2 = myCards.get(1).getValue(),
-                sumcll = getCall(r),
                 opsa = getOpps(r),
                 brrs = 0,
-                cmb = getCombination();
-        char cm1 = myCards.get(0).getSuit(), cm2 = myCards.get(1).getSuit();
+                cmb = 0;
+        float pot = getPot(r),
+                sumcll = getCall(r);
         int rs1 = 0, cll = 0, rrs = 0, rs = 0,
-                bc1 = boardCards.get(0).getValue(),
-                bc2 = boardCards.get(1).getValue(),
-                bc3 = boardCards.get(2).getValue(),
-                mbrd = getMaxBoard();
+                bc1 = 0, bc2 = 0, bc3 = 0, bc4 = 0,bc5 = 0, mbrd = 0;
+        if (rnd > 1) {
+            cmb = getCombination();
+            bc1 = boardCards.get(0).getValue();
+            bc2 = boardCards.get(1).getValue();
+            bc3 = boardCards.get(2).getValue();
+            mbrd = getMaxBoard();
+        }
+        if (rnd > 3) bc4 = boardCards.get(3).getValue();
+        if (rnd > 4) bc5 = boardCards.get(4).getValue();
+        char cm1 = myCards.get(0).getSuit(), cm2 = myCards.get(1).getSuit();
+
         if (firstMove(r) && sumcll > 10 && (pot - 3 - (ops - 1) * 2) / 2 < sumcll) brrs = 1;
         boolean chk = checkCheck(r);
-
 
         if (rnd == 1) {
             if (firstMove(r)) {
@@ -839,12 +841,12 @@ public class Table {
        /* if (mp==9 && ops==1 && sumcll<=7/100){
         if (ops1[1]>0) 
                 {
-        if ((mc1+mc2)>=25) && ((mc1=14) or (mc2=14))   rrs=1;
+        if ((mc1+mc2)>=25 && (mc1=14) or (mc2=14))   rrs=1;
         if (mc1=mc2) &&(mc1+mc2>=14)   rrs=1;
         };
         if (ops1[2]>0) or (ops1[3]>0) 
                 {
-        if ((mc1+mc2)>=25) && ((mc1=14) or (mc2=14))   rrs=1;
+        if ((mc1+mc2)>=25 && (mc1=14) or (mc2=14))   rrs=1;
         if (mc1=mc2) &&(mc1+mc2>=14)   rrs=1;
         };
         };*/
@@ -877,7 +879,7 @@ public class Table {
             {
                 if (mc1 == mc2 && mc1 + mc2 > 25) rrs = 1;
                 if (mc1 + mc2 > 26 && sumcll / pot <= 0.35 && sumcll <= 35 && ops + opsa == 1) cll = 1;
-                if (mc1 + mc2 >= 26 && mp > 4 && mp < 8 && sumcll <= 0.12 && ops + opsa == 1) cll = 1;
+                if (mc1 + mc2 >= 26 && mp > 4 && mp < 8 && sumcll <= 12 && ops + opsa == 1) cll = 1;
                 if (mc1 + mc2 >= 16 && mc1 == mc2 && sumcll / pot <= 0.15 && sumcll <= 12) cll = 1;
                 if (mc1 + mc2 >= 20 && mc1 == mc2 && sumcll / pot <= 0.25 && sumcll <= 7) cll = 1;
             }
@@ -948,14 +950,14 @@ public class Table {
                             if (maxs != cm1 && maxs != cm2 && cmb > 3 && sumcll / pot < 0.3) cll = 1;
                             if (maxs != cm1 && maxs != cm2 && cmb > 5)
                                 rrs = 1;
-                            if (maxs == cm1 && mc1 > 11 && (sumcll / pot) < (45 / 100)) cll = 1;
-                            if (maxs == cm2 && mc2 > 11 && (sumcll / pot) < (45 / 100)) cll = 1;
+                            if (maxs == cm1 && mc1 > 11 && (sumcll / pot) < 0.45) cll = 1;
+                            if (maxs == cm2 && mc2 > 11 && (sumcll / pot) < 0.45) cll = 1;
                             if (maxs == cm1 && mc1 > 11 && cmb > 1) rrs = 1;
                             if (maxs == cm2 && mc2 > 11 && cmb > 1) rrs = 1;
-                            if (cmb > 3 && (sumcll / pot) < (4 / 10)) cll = 1;
+                            if (cmb > 3 && (sumcll / pot) < 0.4) cll = 1;
                             if (cmb > 6) rrs = 1;
                         } else {
-                            if (mc1 > mbrd && mc2 > mbrd && sumcll / pot <= 15 / 100 && chk)
+                            if (mc1 > mbrd && mc2 > mbrd && sumcll / pot <= 0.15 && chk)
                                 cll = 1;
                             if (mac == 2 && z4 == 0 && z3 <= 1 && maxs == cm1 && maxs == cm2
                                     && sumcll / pot <= 35 / 100 && mc1 > 12) cll = 1;
@@ -1052,13 +1054,384 @@ public class Table {
                             && sumcll / pot < 0.35) cll = 1;
                 }
             }
-
         }
 
-        if (rrs > 0) return 4;
-        else if (rs1 > 0 || rs > 0) return 3;
-        else if (cll > 0) return 2;
-        else return 1;
+        if (rnd == 4) {
+            if (firstMove(r))                //===============ïåðâûé õîä
+            {
+                if (ops == 0 && opsa == 1) {
+                    if (mac > 3) {
+                        if (cmb == 7 && cm1 == maxs && mc1 >= 12) rs = 1;
+                        if (cmb == 7 && cm2 == maxs && mc2 >= 12) rs = 1;
+                        if (cmb > 7) rs = 1;
+                    }
+                    if (mac == 3) {
+                        //if (mp == 1 && rmv[1] == 3 && rmv[5] == 3 && ops2[1] == 1) rs=1;
+                        if (maxs == cm1 && mc1 > 11 && (sumcll / pot) <= (30 / 100)) cll = 1;
+                        if (maxs == cm2 && mc2 > 11 && (sumcll / pot) <= (30 / 100)) cll = 1;
+                        if (z3 == 0 && z4 == 0 && cmb > 0) rs = 1;
+                        if (z3 == 1 && z4 == 0 && cmb > 0) rs = 1;
+                        if (z3 == 1 && z4 == 1 && cmb > 3) rs = 1;
+                        if (z3 == 3 && cmb > 6) rs = 1;
+                        if (z4 == 3 && cmb > 6) rs = 1;
+                    }
+                    if (mac < 3) {
+                        //if (mp == 1 && rmv[0] == 3 && rmv[1] == 3 && ops2[1] == 1) rs = 1;
+                        if (chk && bc1 < 10 && bc2 < 10 && bc3 < 10
+                                && bc4 > 10 && rmv[1] > 2) rs = 1;
+                        if (z3 == 0 && z4 == 0 && cmb > 0) rs = 1;
+                        if (z3 == 1 && z4 == 0 && cmb > 0) rs = 1;
+                        if (z3 == 1 && z4 == 1 && cmb > 3) rs = 1;
+                        if (z3 == 3 && cmb > 5) rs = 1;
+                        if (z4 == 3 && cmb > 5) rs = 1;
+                    }
+                }
+                if (ops == 1 && opsa == 0) {
+                    if (chk) {
+                        if (mac > 3 && cmb > 2) rs = 1;
+                        if (mac == 3) {
+                            if (z3 == 0 && z4 == 0 && bc4 != mbrd && pot > 20) rs = 1;
+                            if (bc1 < 10 && bc2 < 10 && bc3 < 10 && bc4 > 10 && rmv[1] == 1) rs = 1;
+                            if (z3 == 0 && z4 == 0 && cmb > 0) rs = 1;
+                            if (z3 == 1 && z4 == 0 && cmb > 0) rs = 1;
+                            if (z3 == 1 && z4 == 1 && cmb > 3) rs = 1;
+                            if (z3 == 3 && cmb > 6) rs = 1;
+                            if (z4 == 3 && cmb > 6) rs = 1;
+                            if (rmv[5] == 1 || rmv[5] == 3) rs = 1;
+                        }
+                        if (mac < 3) {
+                            if (bc1 < 10 && bc2 < 10 && bc3 < 10 && bc4 > 10 && rmv[1] < 3 && pot < 60) rs = 1;
+                            if (z3 == 0 && z4 == 0 && cmb > 0) rs = 1;
+                            if (z3 == 1 && z4 == 0 && cmb > 0) rs = 1;
+                            if (z3 == 1 && z4 == 1 && cmb > 3) rs = 1;
+                            if (z3 == 3 && cmb > 5) rs = 1;
+                            if (z4 == 3 && cmb > 5) rs = 1;
+                            if (rmv[1] == 1 || rmv[1] == 3 && pot <= 70) rs = 1;
+                        }
+                    } else {
+                        if (mac > 3) {
+                            if (cmb == 7 && cm1 == maxs && mc1 >= 12) rrs = 1;
+                            if (cmb == 7 && cm2 == maxs && mc2 >= 12) rrs = 1;
+                            if (cmb > 7) rrs = 1;
+                        }
+                        if (mac == 3) {
+                            if (z3 == 0 && z4 == 0 && cmb > 0 && (sumcll / pot) < 0.45) cll = 1;
+                            if (z3 == 0 && z4 == 0 && cmb > 2) rrs = 1;
+                            if (z3 == 1 && z4 == 0 && cmb > 3) rrs = 1;
+                            if (z3 == 1 && z4 == 1 && cmb > 7) rrs = 1;
+                            if (z3 == 3 && cmb > 6) rrs = 1;
+                            if (z4 == 3 && cmb > 6) rrs = 1;
+                            if (maxs == cm1 && mc1 > 11 && (sumcll / pot) < (45 / 100)) cll = 1;
+                            if (maxs == cm2 && mc2 > 11 && (sumcll / pot) < (45 / 100)) cll = 1;
+                            if (maxs == cm1 && mc1 > 11 && cmb > 1) rrs = 1;
+                            if (maxs == cm2 && mc2 > 11 && cmb > 1) rrs = 1;
+                            if (cmb > 3 && (sumcll / pot) < (4 / 10)) cll = 1;
+                        }
+                        if (mac < 3) {
+                            if (mac == 2 && z4 == 0 && z3 <= 1 && maxs == cm1 && maxs == cm2
+                                    && sumcll / pot <= 25 / 100 && mc1 > 12) cll = 1;
+                            if (mac == 2 && z4 == 0 && z3 <= 1 && maxs == cm1 && maxs == cm2
+                                    && sumcll / pot <= 25 / 100 && mc2 > 12) cll = 1;
+                            if (z3 == 0 && z4 == 0 && cmb == 1 && mc1 == mbrd
+                                    && mc2 > 11) rrs = 1;
+                            if (z3 == 0 && z4 == 0 && cmb == 1 && mc1 == mbrd
+                                    && mc2 > 11 && sumcll / pot <= 3 / 10) cll = 1;
+                            if (z3 == 0 && z4 == 0 && cmb == 1 && mc2 == mbrd
+                                    && mc1 > 11) rrs = 1;
+                            if (z3 == 0 && z4 == 0 && cmb == 1 && mc2 == mbrd
+                                    && mc1 > 11 && sumcll / pot <= 3 / 10) cll = 1;
+                            if (z3 == 0 && z4 == 0 && cmb == 2 && mc1 + mc2 >= 24) rrs = 1;
+                            if (z3 == 0 && z4 == 0 && cmb == 2 && mc1 + mc2 >= 24) rrs = 1;
+                            if (z3 == 0 && z4 == 0 && cmb == 2 && mc1 + mc2 >= 24) rrs = 1;
+                            if (z3 == 0 && z4 == 0 && cmb > 2) rrs = 1;
+                            if (z3 == 0 && z4 == 0 && cmb > 2) rrs = 1;
+                            if (z3 == 0 && z4 == 0 && cmb > 4) rrs = 1;
+                            if (z3 == 1 && cmb > 0 && sumcll / pot < 0.36) cll = 1;
+                            if (z3 == 1 && cmb >= 4) rrs = 1;
+                            if (z3 == 3 && cmb > 7) rrs = 1;
+                            if (z3 == 0 && z4 == 0 && mc1 == mc2 && mc2 >= 12 && mc2 < mbrd
+                                    && sumcll / pot < (20 / 100)) cll = 1;
+                        }
+                    }
+                }
+                if (ops + opsa > 1) {
+                    if (chk) {
+                        if (mac > 3 && cmb > 3) rs = 1;
+                        if (mac <= 3) {
+                            if (z3 == 0 && z4 == 0 && cmb > 0) rs = 1;
+                            if (z3 == 1 && z4 == 0 && cmb > 0 && rmv[1] < 3) rs = 1;
+                            if (z3 == 1 && z4 == 0 && cmb > 3) rs = 1;
+                            if (z3 == 1 && z4 == 1 && cmb > 7) rs = 1;
+                            if (z3 == 3 && cmb > 7) rs = 1;
+                            if (z4 == 3 && cmb > 7) rs = 1;
+                        }
+                    } else {
+                        if (mac > 3) {
+                            if (cmb == 7 && cm1 == maxs && mc1 >= 12) rs = 1;
+                            if (cmb == 7 && cm2 == maxs && mc2 >= 12) rs = 1;
+                            if (cmb > 7) rs = 1;
+
+                        }
+                        if (mac == 3) {
+                            if (maxs == cm1 && mc1 > 11 && z3 == 0 && z4 == 0 && cmb > 0) cll = 1;
+                            if (maxs == cm2 && mc2 > 11 && z3 == 0 && z4 == 0 && cmb > 0) cll = 1;
+                            if (z3 == 0 && z4 == 0 && cmb > 4) rrs = 1;
+                            if (maxs == cm1 && mc1 > 11 && z3 == 1 && z4 == 0 && cmb >= 2) cll = 1;
+                            if (maxs == cm2 && mc2 > 11 && z3 == 1 && z4 == 0 && cmb >= 2) cll = 1;
+                            if (z3 == 1 && z4 == 0 && cmb > 5) rrs = 1;
+                            if (z3 == 1 && z4 == 1 && cmb > 7) rrs = 1;
+                            if (z3 == 3 && cmb > 7) rrs = 1;
+                            if (z4 == 3 && cmb > 7) rrs = 1;
+                        }
+                        if (mac < 3) {
+                            if (mac == 2 && z4 == 0 && z3 <= 1 && maxs == cm1 && maxs == cm2
+                                    && sumcll / pot <= 25 / 100 && mc1 > 12) cll = 1;
+                            if (mac == 2 && z4 == 0 && z3 <= 1 && maxs == cm1 && maxs == cm2
+                                    && sumcll / pot <= 25 / 100 && mc2 > 12) cll = 1;
+                            if (z3 == 0 && z4 == 0 && cmb > 2) cll = 1;
+                            if (z3 == 0 && z4 == 0 && cmb > 4) rrs = 1;
+                            if (z3 == 1 && z4 == 0 && cmb > 0 && sumcll / pot <= 4 / 10) cll = 1;
+                            if (z3 == 1 && z4 == 0 && cmb > 5) rrs = 1;
+                            if (z3 == 1 && z4 == 1 && cmb > 7) rrs = 1;
+                            if (z3 == 3 && cmb > 7) rrs = 1;
+                            if (z4 == 3 && cmb > 7) rrs = 1;
+                            if (z3 == 0 && z4 == 0 && cmb > 1 && (sumcll / pot) < (20 / 100)) cll = 1;
+                        }
+                    }
+                }
+            } else {
+                if (mac > 3) {
+                    if (cmb == 7 && cm1 == maxs && mc1 >= 12) rrs = 1;
+                    if (cmb == 7 && cm2 == maxs && mc2 >= 12) rrs = 1;
+                    if (cmb > 7) rrs = 1;
+                }
+                if (mac == 3) {
+                    if (maxs == cm1 && mc1 > 11 && z3 == 0 && z4 == 0
+                            && sumcll / pot <= (35 / 100)) cll = 1;
+                    if (maxs == cm2 && mc2 > 11 && z3 == 0 && z4 == 0
+                            && (sumcll / pot) <= (35 / 100)) cll = 1;
+                    if (maxs == cm1 && mc1 > 11 && z3 == 0 && z4 == 0
+                            && sumcll / pot <= (45 / 100) && cmb > 0) cll = 1;
+                    if (maxs == cm2 && mc2 > 11 && z3 == 0 && z4 == 0
+                            && (sumcll / pot) <= (45 / 100) && cmb > 0) cll = 1;
+                    if (maxs == cm1 && mc1 > 11 && z3 == 1 && z4 == 0 && (sumcll / pot) <= (30 / 100)
+                            && cmb > 0) cll = 1;
+                    if (maxs == cm2 && mc2 > 11 && z3 == 1 && z4 == 0 && (sumcll / pot) <= (30 / 100)
+                            && cmb > 0) cll = 1;
+                    if (maxs == cm1 && mc1 > 11 && z3 == 1 && z4 == 0 && (sumcll / pot) <= (45 / 100)
+                            && cmb > 0 && cmb > 0) cll = 1;
+                    if (maxs == cm2 && mc2 > 11 && z3 == 1 && z4 == 0 && (sumcll / pot) <= (45 / 100)
+                            && cmb > 0 && cmb > 0) cll = 1;
+                    if (z3 == 0 && z4 == 0 && cmb > 0 && (sumcll / pot) <= (25 / 100) && sumcll <= 30) cll = 1;
+                    if (z3 == 0 && z4 == 0 && cmb > 2 && (sumcll / pot) <= (30 / 100)) cll = 1;
+                    if (z3 == 0 && z4 == 0 && cmb > 4) rrs = 1;
+                    if (z3 == 1 && z4 == 0 && cmb > 0 && (sumcll / pot) <= (25 / 100) && sumcll <= 30) cll = 1;
+                    if (z3 == 1 && z4 == 0 && cmb > 3 && (sumcll / pot) <= (30 / 100)) cll = 1;
+                    if (z3 == 1 && z4 == 1 && cmb > 7) rrs = 1;
+                    if (z3 == 3 && cmb > 7) rrs = 1;
+                    if (z4 == 3 && cmb > 7) rrs = 1;
+                }
+                if (mac < 3) {
+                    if (mac == 2 && cm1 == cm2 && cm1 == maxs && mc1 > mbrd
+                            && mc2 > mbrd && (sumcll / pot) < (40 / 100)) cll = 1;
+                    if (mac == 2 && cm1 == cm2 && cm1 == maxs && (mc1 > 12)
+                            || mc2 > 12 && sumcll / pot < (35 / 100)) cll = 1;
+                    //if (mac == 2 && cm1 == cm2 && cm1 == maxs && ddm <= 1 && sumcll / pot <= 4 / 10) cll = 1;
+                    // if ((ddm = 0 && sumcll / pot) < (30 / 100)) cll = 1;
+                    if (z3 == 0 && z4 == 0 && cmb == 1 && mc1 == mbrd && mc2 > 11 && (sumcll / pot) < 0.35) cll = 1;
+                    if (z3 == 0 && z4 == 0 && cmb == 1 && mc2 == mbrd && mc1 > 11 && (sumcll / pot) < 0.35) cll = 1;
+                    if (z3 == 0 && z4 == 0 && cmb > 1) rrs = 1;
+                    if (z3 == 0 && z4 == 0 && cmb > 1 && (sumcll / pot) < 0.3) rrs = 1;
+                    if (z3 == 0 && z4 == 0 && cmb > 3) rrs = 1;
+                    if (z3 == 1 && z4 == 0 && cmb > 1 && cmb < 4 && (sumcll / pot) < (30 / 100)) cll = 1;
+                    if (z3 == 1 && cmb > 3) rrs = 1;
+                    if (z3 == 3 && cmb > 7) rrs = 1;
+                    if (mac <= 2 && mc1 + mc2 >= 26 && mbrd <= 10 && z3 == 0
+                            && ops + opsa == 1 && (sumcll / pot) < (35 / 100)) cll = 1;
+                }
+            }
+        }
+
+        if (rnd == 5) {
+
+            if (firstMove(r))                //===============ïåðâûé õîä
+            {
+                if (ops == 0 && opsa == 1) {
+                    if (mac > 3) {
+                        if (cmb == 7 && cm1 == maxs && mc1 >= 12) rs = 1;
+                        if (cmb == 7 && cm2 == maxs && mc2 >= 12) rs = 1;
+                        if (cmb > 7) rs = 1;
+                    }
+                    if (mac == 3) {
+                        if (z3 == 0 && z4 == 0 && cmb > 0) rs = 1;
+                        if (z3 == 1 && z4 == 0 && cmb > 0) rs = 1;
+                        if (z3 == 1 && z4 == 1 && cmb > 3) rs = 1;
+                        if (z3 == 3 && cmb > 6) rs = 1;
+                        if (z4 == 3 && cmb > 6) rs = 1;
+                        if (bc5 == mc1 && z3 <= 1 && z4 == 0
+                                && mc1 >= 10 && rmv[2] == 1 && rmv[1] == 1) rs = 1;
+                        if (bc5 == mc2 && z3 <= 1 && z4 == 0 && cmb == 0
+                                && mc2 >= 10 && rmv[2] == 1 && rmv[1] == 1) rs = 1;
+                    }
+                    if (mac < 3) {
+                        if (z3 == 0 && z4 == 0 && cmb > 0) rs = 1;
+                        if (z3 == 1 && z4 == 0 && cmb > 0) rs = 1;
+                        if (z3 == 1 && z4 == 1 && cmb > 3) rs = 1;
+                        if (z3 == 3 && cmb > 5) rs = 1;
+                        if (z4 == 3 && cmb > 5) rs = 1;
+                        if (bc5 == mc1 && z3 <= 1 && z4 == 0
+                                && mc1 >= 10 && rmv[6] == 1 && rmv[5] == 1) rs = 1;
+                        if (bc5 == mc2 && z3 <= 1 && z4 == 0 && cmb == 0
+                                && mc2 >= 10 && rmv[6] == 1 && rmv[5] == 1) rs = 1;
+                    }
+                }
+                if (ops == 1 && opsa == 0) {
+                    if (chk) {
+                        if (mac > 3 && cmb > 2) rs = 1;
+                        if (mac == 3) {
+                            if (z3 <= 1 && z4 == 0 && cmb == 1 && rmv[1] < 3 &&
+                                    rmv[6] < 3) rs = 1;
+                            //  if (z3 <= 1 && z4 == 0 && cmb > 1 && rmv[6] < 2 && ddm > 1) rs = 1;
+                            // if (z3 <= 1 && z4 == 0 && cmb > 2 && ddm > 1) rs = 1;
+                            if (z3 <= 1 && z4 == 0 && cmb > 4) rs = 1;
+                            if (z3 == 1 && z4 == 1 && cmb > 3) rs = 1;
+                            if (z3 == 3 && cmb > 6) rs = 1;
+                            if (z4 == 3 && cmb > 6) rs = 1;
+                            if (bc5 == mc1 && z3 <= 1 && z4 == 0
+                                    && mc1 >= 10 && rmv[2] == 1 && rmv[1] == 1) rs = 1;
+                            if (bc5 == mc2 && z3 <= 1 && z4 == 0
+                                    && mc2 >= 10 && rmv[2] == 1 && rmv[1] == 1) rs = 1;
+                        }
+                        if (mac < 3) {
+                            if (z3 <= 1 && z4 == 0 && cmb == 1 && rmv[5] < 3 &&
+                                    rmv[6] < 3) rs = 1;
+                            // if (z3 <= 1 && z4 == 0 && cmb > 1 && rmv[6] < 2 && ddm > 1) rs = 1;
+                            //if (z3 <= 1 && z4 == 0 && cmb > 2 && ddm > 1) rs = 1;
+                            if (z3 <= 1 && z4 == 0 && cmb > 4) rs = 1;
+                            if (z3 == 1 && z4 == 1 && cmb > 3) rs = 1;
+                            if (z3 == 3 && cmb > 5) rs = 1;
+                            if (z4 == 3 && cmb > 5) rs = 1;
+                            if (bc5 == mc1 && z3 <= 1 && z4 == 0
+                                    && mc1 >= 10 && rmv[6] == 1 && rmv[1] == 1) rs = 1;
+                            if (bc5 == mc2 && z3 <= 1 && z4 == 0
+                                    && mc2 >= 10 && rmv[6] == 1 && rmv[1] == 1) rs = 1;
+                        }
+                    } else {
+                        if (mac > 3) {
+                            if (cmb == 7 && cm1 == maxs && mc1 >= 12) rrs = 1;
+                            if (cmb == 7 && cm2 == maxs && mc2 >= 12) rrs = 1;
+                            if (cmb > 7) rrs = 1;
+                        }
+                        if (mac == 3) {
+                            //if (pot > 0.3 && sumcll <= 0.04 && (z1 < > 0) or(z2 < > 0)
+                            //or(mc1 = mc2))cll = 1;
+                            if (z3 <= 1 && z4 == 0 && rmv[1] > 2 && rmv[2] > 2
+                                    && sumcll / pot < 0.25) cll = 1;
+                            if (z3 == 0 && z4 == 0 && cmb > 0 && sumcll / pot < 4 / 10) cll = 1;
+                            if (z3 == 0 && z4 == 0 && cmb > 2) rrs = 1;
+                            if (z3 == 1 && z4 == 0 && cmb >= 1 && sumcll / pot < 4 / 10) cll = 1;
+                            if (z3 == 1 && z4 == 0 && cmb > 3) rrs = 1;
+                            if (z3 == 1 && z4 == 1 && cmb > 7) rrs = 1;
+                            if (z3 == 3 && cmb > 6) rrs = 1;
+                            if (z4 == 3 && cmb > 6) rrs = 1;
+                        }
+                        if (mac < 3) {
+                            //if (pot > 0.3 && sumcll <= 0.04 && (z1 < > 0) or(z2 < > 0)
+                            //or(mc1 = mc2))cll = 1;
+                            if (z3 <= 1 && z4 == 0 && rmv[5] > 2 && rmv[6] > 2
+                                    && sumcll / pot < 0.25) cll = 1;
+                            if (z3 == 0 && z4 == 0 && cmb > 0 && sumcll / pot < 0.4) cll = 1;
+                            if (z3 == 0 && z4 == 0 && cmb > 2) rrs = 1;
+                            if (z3 == 1 && z4 == 0 && cmb >= 1 && sumcll / pot < 0.35 && rmv[2] > 1) cll = 1;
+                            if (z3 == 1 && z4 == 0 && cmb >= 1 && sumcll / pot < 0.5 && rmv[2] == 1) cll = 1;
+                            if (z3 == 1 && z4 == 0 && cmb > 3) rrs = 1;
+                            if (z3 == 1 && z4 == 1 && cmb > 7) rrs = 1;
+                            if (z3 == 3 && cmb > 6) rrs = 1;
+                            if (z4 == 3 && cmb > 6) rrs = 1;
+                        }
+                    }
+                }
+                if (ops + opsa > 1) {
+                    if (chk) {
+                        if (mac > 3 && cmb > 3) rs = 1;
+                        if (mac <= 3) {
+                            if (z3 == 0 && z4 == 0 && cmb > 0) rs = 1;
+                            if (z3 == 1 && z4 == 0 && cmb > 0) rs = 1;
+                            if (z3 == 1 && z4 == 1 && cmb > 7) rs = 1;
+                            if (z3 == 3 && cmb > 7) rs = 1;
+                            if (z4 == 3 && cmb > 7) rs = 1;
+                        }
+                    } else {
+                        if (mac > 3) {
+                            if (cmb == 7 && cm1 == maxs && mc1 >= 12) rrs = 1;
+                            if (cmb == 7 && cm2 == maxs && mc2 >= 12) rrs = 1;
+                            if (cmb > 7) rrs = 1;
+                        }
+                        if (mac == 3) {
+                            if (z3 == 0 && z4 == 0 && cmb > 0 && sumcll / pot < 4 / 10) cll = 1;
+                            if (z3 == 0 && z4 == 0 && cmb > 2) rrs = 1;
+                            if (z3 == 1 && z4 == 0 && cmb >= 1 && sumcll / pot < 4 / 10) cll = 1;
+                            if (z3 == 1 && z4 == 0 && cmb > 3) rrs = 1;
+                            if (z3 == 1 && z4 == 1 && cmb > 7) rrs = 1;
+                            if (z3 == 3 && cmb > 6) rrs = 1;
+                            if (z4 == 3 && cmb > 6) rrs = 1;
+                        }
+                        if (mac < 3) {
+                            if (z3 == 0 && z4 == 0 && cmb > 0 && sumcll / pot < 5 / 10) cll = 1;
+                            if (z3 == 0 && z4 == 0 && cmb > 2) rrs = 1;
+                            if (z3 == 1 && z4 == 0 && cmb >= 1 && sumcll / pot < 5 / 10) cll = 1;
+                            if (z3 == 1 && z4 == 0 && cmb > 3) rrs = 1;
+
+                            if (z3 == 1 && z4 == 1 && cmb > 7) rrs = 1;
+                            if (z3 == 3 && cmb > 6) rrs = 1;
+                            if (z4 == 3 && cmb > 6) rrs = 1;
+                        }
+                    }
+                }
+            } else {
+                if (mac > 3) {
+                    if (cmb == 7 && cm1 == maxs && mc1 >= 12) rrs = 1;
+                    if (cmb == 7 && cm2 == maxs && mc2 >= 12) rrs = 1;
+                    if (cmb > 7) rrs = 1;
+                }
+                if (mac <= 3) {
+                    if (z3 == 0 && z4 == 0 && cmb > 0 && sumcll / pot < 4 / 10 && sumcll <= 50) cll = 1;
+                    if (z3 == 0 && z4 == 0 && cmb > 2 && sumcll / pot < 4 / 10) cll = 1;
+                    if (z3 == 0 && z4 == 0 && cmb > 4 && sumcll / pot < 5 / 10) cll = 1;
+                    if (z3 == 0 && z4 == 0 && cmb > 5) rrs = 1;
+                    if (z3 == 1 && z4 == 0 && cmb > 3 && sumcll / pot < 5 / 10) cll = 1;
+                    if (z3 == 1 && z4 == 1 && cmb > 7) rrs = 1;
+                    if (z3 == 3 && cmb > 7) rrs = 1;
+                    if (z4 == 3 && cmb > 7) rrs = 1;
+                    if (opsa == 0 && ops == 1 && bc5 == mc1 && z3 <= 1
+                            && z4 == 0 && mc1 >= 10 && sumcll / pot <= 35 / 100) cll = 1;
+                    if (opsa == 0 && ops == 1 && bc5 == mc2 && z3 <= 1
+                            && z4 == 0 && mc2 >= 10 && sumcll / pot <= 35 / 100) cll = 1;
+                }
+            }
+        }
+
+        lastpot = pot;
+        lastPos = mp;
+        lastCards = myCards;
+
+        if (rrs > 0) {
+            if (rnd == 1) rmv[0] = 4;
+            else rmv[rnd - 2] = 4;
+            return 4;
+        } else if (rs1 > 0 || rs > 0) {
+            if (rnd == 1) rmv[0] = 3;
+            else rmv[rnd - 2] = 3;
+            return 3;
+        } else if (cll > 0) {
+            if (rnd == 1) rmv[0] = 2;
+            else rmv[rnd - 2] = 2;
+            return 2;
+        } else {
+            if (rnd == 1) rmv[0] = 1;
+            else rmv[rnd - 2] = 1;
+            return 1;
+        }
     }
 
     private int getMaxBoard() {
