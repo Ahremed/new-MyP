@@ -637,7 +637,7 @@ public class Table {
     private boolean isStrit() {
         Integer[] cards = new Integer[getRnd(r) + 2];
         ArrayList<Integer> cards2 = new ArrayList<>();
-        int j = 0, dif = 0, n = 0;
+        int j = 0, dif = 0;
         for (Card card : myCards) {
             cards[j] = card.getValue();
             j++;
@@ -649,11 +649,16 @@ public class Table {
         Arrays.sort(cards, Collections.reverseOrder());
 
         for (int i = 0; i < cards.length - 1; i++) {
-            if (cards[i + 1] != cards[i]) {
+            if (!cards[i + 1].equals(cards[i])) {
                 cards2.add(cards[i]);
-                n++;
             }
         }
+        cards2.add(cards[cards.length - 1]);
+        System.out.println("Strit:");
+        for (int i:cards2){
+            System.out.print(i+" ");
+        }
+        System.out.println();
         if (cards2.size() < 5) return false;
 
         switch (cards2.size()) {
