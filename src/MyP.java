@@ -59,7 +59,7 @@ public class MyP extends JFrame {
         button1.addActionListener(actionListener);
         button2.addActionListener(actionListener2);
         getContentPane().add(panel);
-        setPreferredSize(new Dimension(250, 300));
+        setPreferredSize(new Dimension(250, 250));
     }
 
     public class TestActionListener implements ActionListener {
@@ -103,7 +103,7 @@ public class MyP extends JFrame {
                     e1.printStackTrace();
                 }
                 image = r.createScreenCapture(rect);
-                dt = new Date();
+
                 /* color = image.getRGB(100, 100);
                  red = (color & 0x00ff0000) >> 16;
                  green = (color & 0x0000ff00) >> 8;
@@ -113,23 +113,22 @@ public class MyP extends JFrame {
                             + table1.getStack(image));
                     textField3.setText("Pot= " + table1.getPot(image) + " Call = " + table1.getCall(image) + " Rs = "
                             + table1.getRaise(image));
-                    table1.getMyCards(image);
-                    textField4.setText(String.valueOf(table1.myCards.get(0).getValue()) + table1.myCards.get(0).getSuit() +
-                            +table1.myCards.get(1).getValue() + table1.myCards.get(1).getSuit());
-                    textField5.setText("");
-                    if (table1.checkFold(image)) {
-                        textField5.setText(String.valueOf(table1.move(image)));
-                    }
-                    dt2 = new Date();
-                    speed = dt2.getTime() - dt.getTime();
-                     textField.setText(String.valueOf(speed) + " Rnd = " + table1.getRnd(image));
-                st=" ";
-                for (Table.Card card:table1.boardCards){
-                    st+=String.valueOf(card.getValue())+card.getSuit()+" ";
+                table1.getMyCards(image);
+                textField4.setText(String.valueOf(table1.myCards.get(0).getValue()) + table1.myCards.get(0).getSuit() +
+                        +table1.myCards.get(1).getValue() + table1.myCards.get(1).getSuit());
+                textField5.setText("");
+                textField.setText("Rnd = " + table1.getRnd(image) + " First = "
+                        + table1.firstMove(image));
+                if (table1.checkFold(image)) {
+                    textField5.setText(String.valueOf(table1.move(image)));
                 }
-                if (table1.getRnd(image)>1) textField6.setText("Comb = " + table1.getCombination()+st);
+                st = " ";
+                for (Table.Card card : table1.boardCards) {
+                    st += String.valueOf(card.getValue()) + card.getSuit() + " ";
+                }
+                if (table1.getRnd(image) > 1) textField6.setText("Comb = " + table1.getCombination()+st);
                 try {
-                    sleep(10);
+                    sleep(1500);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }

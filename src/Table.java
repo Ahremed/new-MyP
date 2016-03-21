@@ -659,34 +659,34 @@ public class Table {
         switch (cards2.size()) {
             case 5: {
                 for (int i = 0; i < 4; i++) {
-                    dif = cards2.get(i) - cards2.get(i + 1) - 1;
+                    dif += cards2.get(i) - cards2.get(i + 1) - 1;
                 }
                 break;
             }
             case 6: {
                 for (int i = 0; i < 4; i++) {
-                    dif = cards2.get(i) - cards2.get(i + 1) - 1;
+                    dif += cards2.get(i) - cards2.get(i + 1) - 1;
                 }
                 if (dif == 0) break;
                 else dif = 0;
                 for (int i = 1; i < 5; i++) {
-                    dif = cards2.get(i) - cards2.get(i + 1) - 1;
+                    dif += cards2.get(i) - cards2.get(i + 1) - 1;
                 }
                 break;
             }
             case 7: {
                 for (int i = 0; i < 4; i++) {
-                    dif = cards2.get(i) - cards2.get(i + 1) - 1;
+                    dif += cards2.get(i) - cards2.get(i + 1) - 1;
                 }
                 if (dif == 0) break;
                 else dif = 0;
                 for (int i = 1; i < 5; i++) {
-                    dif = cards2.get(i) - cards2.get(i + 1) - 1;
+                    dif += cards2.get(i) - cards2.get(i + 1) - 1;
                 }
                 if (dif == 0) break;
                 else dif = 0;
                 for (int i = 2; i < 6; i++) {
-                    dif = cards2.get(i) - cards2.get(i + 1) - 1;
+                    dif += cards2.get(i) - cards2.get(i + 1) - 1;
                 }
                 break;
             }
@@ -713,12 +713,11 @@ public class Table {
             if (mc1 == bc.getValue()) z1++;
             if (mc2 == bc.getValue()) z2++;
         }
-
+        int num = 0;
         for (Card card : boardCards) {
-            int i = 0;
             if (card.getValue() > mbrd) mbrd = card.getValue();
-            brd[i] = card.getValue();
-            i++;
+            brd[num] = card.getValue();
+            num++;
         }
 
         for (int i = 0; i < 4; i++) {
@@ -736,19 +735,24 @@ public class Table {
             }
         }
 
+        for (int i:brd){
+            System.out.print(i+" ");
+        }
+        System.out.println();
+        System.out.println("Z1 = " + z1 + " Z2 = " + z2+" Z3 = " + z3 + " Z4 = " + z4);
+
         if (z3 == 3) for (int i = 0; i < 5; i++) if (brd[i] > t3 && brd[i] != t) t3 = brd[i];
         if (z4 == 3) for (int i = 0; i < 5; i++) if (brd[i] > t3 && brd[i] != t2) t3 = brd[i];
         if (mbrd == mc1 || mbrd == mc2) cmb = 1;                                     //=====Top pair
         if (mc1 == mc2 && mc1 > mbrd) cmb = 2;                                       //=====Overpair
-        if (z1 == 1 && z2 == 1 && mc1 != mc2) cmb = 3;                              //=====Two pairs
+        if (z1 == 1 && z2 == 1 && mc1 != mc2) cmb = 3;                               //=====Two pairs
         if ((z1 == 2 && z2 == 0) || (z1 == 0 && z2 == 2)) cmb = 4;                   //=====Triple
-        if (z1 == 1 && z2 == 1 && mc1 == mc2) cmb = 5;                             //======Set
-        if (isStrit()) cmb = 6;                                                       //======Strit
-        if (isFlash()) cmb = 7;                                                        //======Flesh
-        if ((z3 == 3 && z4 == 1) || (z3 == 1 && z4 == 3))
-            cmb = 8;                                                                  //======FullHouse board
-        if ((z1 == 2 && z2 == 1) || (z1 == 1 && z2 == 2)) cmb = 9;                     //======FullHouse
-        if (z1 == 1 && z2 == 1 && mc1 == mc2 && z3 == 1 && mc1 != t) cmb = 9;          //======FullHouse
+        if (z1 == 1 && z2 == 1 && mc1 == mc2) cmb = 5;                               //======Set
+        if (isStrit()) cmb = 6;                                                      //======Strit
+        if (isFlash()) cmb = 7;                                                      //======Flesh
+        if ((z3 == 3 && z4 == 1) || (z3 == 1 && z4 == 3)) cmb = 8;                                                                  //======FullHouse board
+        if ((z1 == 2 && z2 == 1) || (z1 == 1 && z2 == 2)) cmb = 9;                    //======FullHouse
+        if (z1 == 1 && z2 == 1 && mc1 == mc2 && z3 == 1 && mc1 != t) cmb = 9;         //======FullHouse
         if (z1 == 1 && z2 == 1 && mc1 == mc2 && z4 == 1 && mc1 != t2) cmb = 9;
         if (z3 == 3 && z1 == 1 && z2 == 0 && mc1 != t) cmb = 9;
         if (z3 == 3 && z1 == 0 && z2 == 1 && mc2 != t) cmb = 9;
@@ -769,7 +773,7 @@ public class Table {
         getMyCards(r);
         readBoardCards(r);
         if (checkRaise(r) && checkFold(r)) return fullMove(r);
-        else if (checkFold(r)) return quiqMove(r);
+        else if (checkFold(r) && getRnd(r)==1) return quiqMove(r);
         else return 0;
     }
 
