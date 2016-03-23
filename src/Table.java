@@ -1,8 +1,11 @@
 
+import java.awt.*;
+import java.awt.event.InputEvent;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Random;
 
 
 /**
@@ -11,7 +14,7 @@ import java.util.Collections;
 public class Table {
     private int x, y;
     private ArrayList<Card> lastCards;
-    private int lastPos;
+    private int lastPos, lastrnd;
     float lastpot;
     public ArrayList<Card> myCards;
     public ArrayList<Card> boardCards;
@@ -19,14 +22,7 @@ public class Table {
     char maxs;
     int mac, z3, z4;
     int[] rmv = new int[4];
-
-    public int getX() {
-        return this.x;
-    }
-
-    public int getY() {
-        return this.y;
-    }
+    Robot rb;
 
     class Card {
         private int value;
@@ -53,6 +49,11 @@ public class Table {
         lastCards = new ArrayList<>();
         myCards = new ArrayList<>();
         boardCards = new ArrayList<>();
+        try {
+            rb = new Robot();
+        } catch (AWTException e) {
+            e.printStackTrace();
+        }
     }
 
     public int readPos(BufferedImage r) {
@@ -280,7 +281,7 @@ public class Table {
 
     public boolean checkOpen(BufferedImage r) {
         boolean open;
-        if (((r.getRGB(x + 100, y + 20) & 0x00ff0000) >> 16) > 200) open = false;
+        if (((r.getRGB(x + 100, y + 3) & 0x00ff0000) >> 16) > 150) open = false;
         else open = true;
         return open;
     }
@@ -316,7 +317,7 @@ public class Table {
 
     public boolean firstMove(BufferedImage r) {
         boolean move;
-        if (lastCards.equals(myCards) && lastPos == readPos(r) && lastpot < getPot(r)) move = false;
+        if (lastCards.equals(myCards) && lastPos == readPos(r) && lastpot < getPot(r) && lastrnd==getRnd(r)) move = false;
         else move = true;
         return move;
     }
@@ -581,9 +582,42 @@ public class Table {
         }
     }
 
+    public int getMac(){
+        int cd = 0, cs = 0, ch = 0, cc = 0, mac = 0;
+        for (Card card : boardCards) {
+            switch (card.getSuit()) {
+                case 'c':
+                    cc++;
+                    break;
+                case 'd':
+                    cd++;
+                    break;
+                case 'h':
+                    ch++;
+                    break;
+                case 's':
+                    cs++;
+                    break;
+            }
+        }
+        if (cc > cd && cc > ch && cc > cs) {
+            mac = cc;
+            maxs = 'c';
+        } else if (ch > cd && ch > cc && ch > cs) {
+            mac = ch;
+            maxs = 'h';
+        } else if (cd > cc && cd > ch && cd > cs) {
+            mac = cd;
+            maxs = 'd';
+        } else if (cs > cd && cs > ch && cs > cc) {
+            mac = cs;
+            maxs = 's';
+        } else maxs = 'n';
+        return mac;
+    }
+
     private boolean isFlash() {
-        int cd = 0, cs = 0, ch = 0, cc = 0;
-        mac = 0;
+        int cd = 0, cs = 0, ch = 0, cc = 0, mac = 0;
         for (Card card : myCards) {
             switch (card.getSuit()) {
                 case 'c':
@@ -618,17 +652,13 @@ public class Table {
         }
         if (cc > cd && cc > ch && cc > cs) {
             mac = cc;
-            maxs = 'c';
         } else if (ch > cd && ch > cc && ch > cs) {
             mac = ch;
-            maxs = 'h';
         } else if (cd > cc && cd > ch && cd > cs) {
             mac = cd;
-            maxs = 'd';
         } else if (cs > cd && cs > ch && cs > cc) {
             mac = cs;
-            maxs = 's';
-        } else maxs = 'n';
+        }
         if (mac >= 5 && (myCards.get(0).getSuit().equals(maxs) & myCards.get(0).getValue() >= 12 ||
                 myCards.get(1).getSuit().equals(maxs) & myCards.get(1).getValue() >= 12)) return true;
         else return false;
@@ -773,7 +803,7 @@ public class Table {
         return cmb;
     }
 
-    public int move(BufferedImage r) {
+    public int moveNum(BufferedImage r) {
         this.r = r;
         getMyCards(r);
         readBoardCards(r);
@@ -805,7 +835,8 @@ public class Table {
                 mc1 = myCards.get(0).getValue(), mc2 = myCards.get(1).getValue(),
                 opsa = getOpps(r),
                 brrs = 0,
-                cmb = 0;
+                cmb = 0,
+                mac = getMac();
         float pot = getPot(r),
                 sumcll = getCall(r);
         int rs1 = 0, cll = 0, rrs = 0, rs = 0,
@@ -1075,7 +1106,7 @@ public class Table {
                         if (cmb > 7) rs = 1;
                     }
                     if (mac == 3) {
-                        //if (mp == 1 && rmv[1] == 3 && rmv[5] == 3 && ops2[1] == 1) rs=1;
+                        //if (mp == 1 && rmv[1] == 3 && rmv[1] == 3 && ops2[1] == 1) rs=1;
                         if (maxs == cm1 && mc1 > 11 && (sumcll / pot) <= (30 / 100)) cll = 1;
                         if (maxs == cm2 && mc2 > 11 && (sumcll / pot) <= (30 / 100)) cll = 1;
                         if (z3 == 0 && z4 == 0 && cmb > 0) rs = 1;
@@ -1106,7 +1137,7 @@ public class Table {
                             if (z3 == 1 && z4 == 1 && cmb > 3) rs = 1;
                             if (z3 == 3 && cmb > 6) rs = 1;
                             if (z4 == 3 && cmb > 6) rs = 1;
-                            if (rmv[5] == 1 || rmv[5] == 3) rs = 1;
+                            if (rmv[1] == 1 || rmv[1] == 3) rs = 1;
                         }
                         if (mac < 3) {
                             if (bc1 < 10 && bc2 < 10 && bc3 < 10 && bc4 > 10 && rmv[1] < 3 && pot < 60) rs = 1;
@@ -1289,9 +1320,9 @@ public class Table {
                         if (z3 == 3 && cmb > 5) rs = 1;
                         if (z4 == 3 && cmb > 5) rs = 1;
                         if (bc5 == mc1 && z3 <= 1 && z4 == 0
-                                && mc1 >= 10 && rmv[6] == 1 && rmv[5] == 1) rs = 1;
+                                && mc1 >= 10 && rmv[2] == 1 && rmv[1] == 1) rs = 1;
                         if (bc5 == mc2 && z3 <= 1 && z4 == 0 && cmb == 0
-                                && mc2 >= 10 && rmv[6] == 1 && rmv[5] == 1) rs = 1;
+                                && mc2 >= 10 && rmv[2] == 1 && rmv[1] == 1) rs = 1;
                     }
                 }
                 if (ops == 1 && opsa == 0) {
@@ -1299,8 +1330,8 @@ public class Table {
                         if (mac > 3 && cmb > 2) rs = 1;
                         if (mac == 3) {
                             if (z3 <= 1 && z4 == 0 && cmb == 1 && rmv[1] < 3 &&
-                                    rmv[6] < 3) rs = 1;
-                            //  if (z3 <= 1 && z4 == 0 && cmb > 1 && rmv[6] < 2 && ddm > 1) rs = 1;
+                                    rmv[2] < 3) rs = 1;
+                            //  if (z3 <= 1 && z4 == 0 && cmb > 1 && rmv[2] < 2 && ddm > 1) rs = 1;
                             // if (z3 <= 1 && z4 == 0 && cmb > 2 && ddm > 1) rs = 1;
                             if (z3 <= 1 && z4 == 0 && cmb > 4) rs = 1;
                             if (z3 == 1 && z4 == 1 && cmb > 3) rs = 1;
@@ -1312,18 +1343,18 @@ public class Table {
                                     && mc2 >= 10 && rmv[2] == 1 && rmv[1] == 1) rs = 1;
                         }
                         if (mac < 3) {
-                            if (z3 <= 1 && z4 == 0 && cmb == 1 && rmv[5] < 3 &&
-                                    rmv[6] < 3) rs = 1;
-                            // if (z3 <= 1 && z4 == 0 && cmb > 1 && rmv[6] < 2 && ddm > 1) rs = 1;
+                            if (z3 <= 1 && z4 == 0 && cmb == 1 && rmv[1] < 3 &&
+                                    rmv[2] < 3) rs = 1;
+                            // if (z3 <= 1 && z4 == 0 && cmb > 1 && rmv[2] < 2 && ddm > 1) rs = 1;
                             //if (z3 <= 1 && z4 == 0 && cmb > 2 && ddm > 1) rs = 1;
                             if (z3 <= 1 && z4 == 0 && cmb > 4) rs = 1;
                             if (z3 == 1 && z4 == 1 && cmb > 3) rs = 1;
                             if (z3 == 3 && cmb > 5) rs = 1;
                             if (z4 == 3 && cmb > 5) rs = 1;
                             if (bc5 == mc1 && z3 <= 1 && z4 == 0
-                                    && mc1 >= 10 && rmv[6] == 1 && rmv[1] == 1) rs = 1;
+                                    && mc1 >= 10 && rmv[2] == 1 && rmv[1] == 1) rs = 1;
                             if (bc5 == mc2 && z3 <= 1 && z4 == 0
-                                    && mc2 >= 10 && rmv[6] == 1 && rmv[1] == 1) rs = 1;
+                                    && mc2 >= 10 && rmv[2] == 1 && rmv[1] == 1) rs = 1;
                         }
                     } else {
                         if (mac > 3) {
@@ -1347,7 +1378,7 @@ public class Table {
                         if (mac < 3) {
                             //if (pot > 0.3 && sumcll <= 0.04 && (z1 < > 0) or(z2 < > 0)
                             //or(mc1 = mc2))cll = 1;
-                            if (z3 <= 1 && z4 == 0 && rmv[5] > 2 && rmv[6] > 2
+                            if (z3 <= 1 && z4 == 0 && rmv[1] > 2 && rmv[2] > 2
                                     && sumcll / pot < 0.25) cll = 1;
                             if (z3 == 0 && z4 == 0 && cmb > 0 && sumcll / pot < 0.4) cll = 1;
                             if (z3 == 0 && z4 == 0 && cmb > 2) rrs = 1;
@@ -1423,6 +1454,7 @@ public class Table {
         lastpot = pot;
         lastPos = mp;
         lastCards = myCards;
+        lastrnd = rnd;
 
         if (rrs > 0) {
             if (rnd == 1) rmv[0] = 4;
@@ -1449,5 +1481,78 @@ public class Table {
             if (card.getValue() > max) max = card.getValue();
         }
         return max;
+    }
+
+    public void ActiveTable(){
+        int x,y;
+        int i=(int)(Math.random()*4);
+        if (i==0){
+            x=this.x+45+(int)(Math.random()*105);
+            y=this.y+55+(int)(Math.random()*45);
+        } else if(i==1){
+            x=this.x+15+(int)(Math.random()*65);
+            y=this.y+250+(int)(Math.random()*40);
+        }else if(i==2){
+            x=this.x+480+(int)(Math.random()*140);
+            y=this.y+55+(int)(Math.random()*25);
+        }else {
+            x=this.x+560+(int)(Math.random()*60);
+            y=this.y+250+(int)(Math.random()*100);
+        }
+
+        rb.mouseMove(x,y);
+        rb.mousePress(InputEvent.BUTTON1_MASK);
+        rb.delay((int)(Math.random()*300+200));
+        rb.mouseRelease(InputEvent.BUTTON1_MASK);
+    }
+
+    public boolean isTableActive(BufferedImage r){
+        int x,y;
+        y=this.y+265;
+        if (this.x<100) x=638;
+        else x=641;
+        if ((r.getRGB(x, y)  & 0x000000ff) > 200) return true;
+        else return false;
+    }
+
+    private void Fold(){
+        rb.keyPress('1');
+        rb.delay((int)Math.random()*300+200);
+        rb.keyRelease('1');
+    }
+
+    private void Check(){
+        rb.keyPress('1');
+        rb.delay((int)Math.random()*300+200);
+        rb.keyRelease('1');
+    }
+
+    private void Call(){
+        rb.keyPress('1');
+        rb.delay((int)Math.random()*300+200);
+        rb.keyRelease('1');
+    }
+
+    private void Raise(){
+        rb.keyPress('1');
+        rb.delay((int)Math.random()*300+200);
+        rb.keyRelease('1');
+    }
+
+    private void Reraise(){
+        rb.keyPress('1');
+        rb.delay((int)Math.random()*300+200);
+        rb.keyRelease('1');
+    }
+
+    public void move (int num){
+        if (num==10) Fold();
+        else if (num==1) {
+            if (checkCheck(r))Check();
+            else Fold();
+        }
+        else if (num == 2) Call();
+        else if (num == 3) Raise();
+        else if (num == 4) Reraise();
     }
 }
