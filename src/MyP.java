@@ -108,35 +108,42 @@ public class MyP extends JFrame {
                  red = (color & 0x00ff0000) >> 16;
                  green = (color & 0x0000ff00) >> 8;
                  blue = color & 0x000000ff;*/
-
-                textField2.setText("Ops= " + table1.getOps(image) + " Opps = " + table1.getOpps(image) + "Stack="
-                        + table1.getStack(image));
-                textField3.setText("Pot= " + table1.getPot(image) + " Call = " + table1.getCall(image) + " Rs = "
-                        + table1.getRaise(image));
-                table1.getMyCards(image);
-                textField4.setText(String.valueOf(table1.myCards.get(0).getValue()) + table1.myCards.get(0).getSuit() +
-                        +table1.myCards.get(1).getValue() + table1.myCards.get(1).getSuit()
-                        + " Open = "+table1.checkOpen(image));
-                textField5.setText("");
-                textField.setText("Rnd = " + table1.getRnd(image) + " First = "
-                        + table1.firstMove(image)+" aCTIVE = "+ table1.isTableActive(image));
-                if (table1.checkFold(image)) {
-                    textField5.setText(String.valueOf(table1.moveNum(image)));
-                }
-                st = " ";
-                for (Table.Card card : table1.boardCards) {
-                    st += String.valueOf(card.getValue()) + card.getSuit() + " ";
-                }
-                if (table1.getRnd(image) > 1) textField6.setText("Comb = " + table1.getCombination() + st);
-                //if (!table1.isTableActive(image)&&table1.checkOpen(image)) table1.ActiveTable();
-                try {
-                    if (table1.checkFold(image)){
-                        sleep(750);
-                        image = r.createScreenCapture(rect);
+                if (table1.checkOpen(image)) {
+                    try {
+                        if (table1.checkFold(image)) {
+                            sleep(750);
+                            image = r.createScreenCapture(rect);
+                        }
+                    } catch (Exception e) {
+                        e.printStackTrace();
                     }
-                    sleep(1000);
-                } catch (Exception e) {
-                    e.printStackTrace();
+                    textField2.setText("Ops= " + table1.getOps(image) + " Opps = " + table1.getOpps(image) + "Stack="
+                            + table1.getStack(image));
+                    textField3.setText("Pot= " + table1.getPot(image) + " Call = " + table1.getCall(image) + " Rs = "
+                            + table1.getRaise(image));
+                    table1.getMyCards(image);
+                    textField4.setText(String.valueOf(table1.myCards.get(0).getValue()) + table1.myCards.get(0).getSuit() +
+                            +table1.myCards.get(1).getValue() + table1.myCards.get(1).getSuit()
+                            + " Back = " + table1.canBack(image));
+                    textField5.setText("");
+                    textField.setText("Rnd = " + table1.getRnd(image) + " First = "
+                            + table1.firstMove(image));
+                    if (table1.checkFold(image)) {
+                        textField5.setText(String.valueOf(table1.moveNum(image)));
+                    }
+                    st = " ";
+                    for (Table.Card card : table1.boardCards) {
+                        st += String.valueOf(card.getValue()) + card.getSuit() + " ";
+                    }
+                    if (table1.getRnd(image) > 1) textField6.setText("Comb = " + table1.getCombination() + st);
+                    //if (!table1.isTableActive(image)&&table1.checkOpen(image)) table1.ActiveTable();
+                    try {
+                        sleep(500);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                } else {
+       //             if (!CPause.isSelected()) table1.Open();
                 }
             }
         }

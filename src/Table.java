@@ -317,7 +317,8 @@ public class Table {
 
     public boolean firstMove(BufferedImage r) {
         boolean move;
-        if (lastCards.equals(myCards) && lastPos == readPos(r) && lastpot < getPot(r) && lastrnd==getRnd(r)) move = false;
+        if (lastCards.equals(myCards) && lastPos == readPos(r) && lastpot < getPot(r) && lastrnd == getRnd(r))
+            move = false;
         else move = true;
         return move;
     }
@@ -582,7 +583,7 @@ public class Table {
         }
     }
 
-    public int getMac(){
+    public int getMac() {
         int cd = 0, cs = 0, ch = 0, cc = 0, mac = 0;
         for (Card card : boardCards) {
             switch (card.getSuit()) {
@@ -685,8 +686,8 @@ public class Table {
         }
         cards2.add(cards[cards.length - 1]);
         System.out.println("Strit:");
-        for (int i:cards2){
-            System.out.print(i+" ");
+        for (int i : cards2) {
+            System.out.print(i + " ");
         }
         System.out.println();
         if (cards2.size() < 5) return false;
@@ -770,11 +771,11 @@ public class Table {
             }
         }
 
-        for (int i:brd){
-            System.out.print(i+" ");
+        for (int i : brd) {
+            System.out.print(i + " ");
         }
         System.out.println();
-        System.out.println("Z1 = " + z1 + " Z2 = " + z2+" Z3 = " + z3 + " Z4 = " + z4);
+        System.out.println("Z1 = " + z1 + " Z2 = " + z2 + " Z3 = " + z3 + " Z4 = " + z4);
 
         if (z3 == 3) for (int i = 0; i < 5; i++) if (brd[i] > t3 && brd[i] != t) t3 = brd[i];
         if (z4 == 3) for (int i = 0; i < 5; i++) if (brd[i] > t3 && brd[i] != t2) t3 = brd[i];
@@ -785,7 +786,8 @@ public class Table {
         if (z1 == 1 && z2 == 1 && mc1 == mc2) cmb = 5;                               //======Set
         if (isStrit()) cmb = 6;                                                      //======Strit
         if (isFlash()) cmb = 7;                                                      //======Flesh
-        if ((z3 == 3 && z4 == 1) || (z3 == 1 && z4 == 3)) cmb = 8;                                                                  //======FullHouse board
+        if ((z3 == 3 && z4 == 1) || (z3 == 1 && z4 == 3))
+            cmb = 8;                                                                  //======FullHouse board
         if ((z1 == 2 && z2 == 1) || (z1 == 1 && z2 == 2)) cmb = 9;                    //======FullHouse
         if (z1 == 1 && z2 == 1 && mc1 == mc2 && z3 == 1 && mc1 != t) cmb = 9;         //======FullHouse
         if (z1 == 1 && z2 == 1 && mc1 == mc2 && z4 == 1 && mc1 != t2) cmb = 9;
@@ -808,7 +810,7 @@ public class Table {
         getMyCards(r);
         readBoardCards(r);
         if (checkRaise(r) && checkFold(r)) return fullMove(r);
-        else if (checkFold(r) && getRnd(r)==1) return quiqMove(r);
+        else if (checkFold(r) && getRnd(r) == 1) return quiqMove(r);
         else return 0;
     }
 
@@ -840,7 +842,7 @@ public class Table {
         float pot = getPot(r),
                 sumcll = getCall(r);
         int rs1 = 0, cll = 0, rrs = 0, rs = 0,
-                bc1 = 0, bc2 = 0, bc3 = 0, bc4 = 0,bc5 = 0, mbrd = 0;
+                bc1 = 0, bc2 = 0, bc3 = 0, bc4 = 0, bc5 = 0, mbrd = 0;
         if (rnd > 1) {
             cmb = getCombination();
             bc1 = boardCards.get(0).getValue();
@@ -1483,76 +1485,152 @@ public class Table {
         return max;
     }
 
-    public void ActiveTable(){
-        int x,y;
-        int i=(int)(Math.random()*4);
-        if (i==0){
-            x=this.x+45+(int)(Math.random()*105);
-            y=this.y+55+(int)(Math.random()*45);
-        } else if(i==1){
-            x=this.x+15+(int)(Math.random()*65);
-            y=this.y+250+(int)(Math.random()*40);
-        }else if(i==2){
-            x=this.x+480+(int)(Math.random()*140);
-            y=this.y+55+(int)(Math.random()*25);
-        }else {
-            x=this.x+560+(int)(Math.random()*60);
-            y=this.y+250+(int)(Math.random()*100);
+    public void ActiveTable() {
+        int x, y;
+        int i = (int) (Math.random() * 4);
+        if (i == 0) {
+            x = this.x + 45 + (int) (Math.random() * 105);
+            y = this.y + 55 + (int) (Math.random() * 45);
+        } else if (i == 1) {
+            x = this.x + 15 + (int) (Math.random() * 65);
+            y = this.y + 250 + (int) (Math.random() * 40);
+        } else if (i == 2) {
+            x = this.x + 480 + (int) (Math.random() * 140);
+            y = this.y + 55 + (int) (Math.random() * 25);
+        } else {
+            x = this.x + 560 + (int) (Math.random() * 60);
+            y = this.y + 250 + (int) (Math.random() * 100);
         }
 
-        rb.mouseMove(x,y);
+        rb.mouseMove(x, y);
         rb.mousePress(InputEvent.BUTTON1_MASK);
-        rb.delay((int)(Math.random()*300+200));
+        rb.delay((int) (Math.random() * 300 + 200));
         rb.mouseRelease(InputEvent.BUTTON1_MASK);
     }
 
-    public boolean isTableActive(BufferedImage r){
-        int x,y;
-        y=this.y+265;
-        if (this.x<100) x=638;
-        else x=641;
-        if ((r.getRGB(x, y)  & 0x000000ff) > 200) return true;
+    public boolean isTableActive(BufferedImage r) {
+        int x, y;
+        y = this.y + 265;
+        if (this.x < 100) x = 638;
+        else x = 641;
+        if ((r.getRGB(x, y) & 0x000000ff) > 200) return true;
         else return false;
     }
 
-    private void Fold(){
+    private void Fold() {
         rb.keyPress('1');
-        rb.delay((int)Math.random()*300+200);
+        rb.delay((int) (Math.random() * 300) + 200);
         rb.keyRelease('1');
     }
 
-    private void Check(){
+    private void Check() {
         rb.keyPress('1');
-        rb.delay((int)Math.random()*300+200);
+        rb.delay((int) (Math.random() * 300) + 200);
         rb.keyRelease('1');
     }
 
-    private void Call(){
+    private void Call() {
         rb.keyPress('1');
-        rb.delay((int)Math.random()*300+200);
+        rb.delay((int) (Math.random() * 300) + 200);
         rb.keyRelease('1');
     }
 
-    private void Raise(){
+    private void Raise() {
         rb.keyPress('1');
-        rb.delay((int)Math.random()*300+200);
+        rb.delay((int) (Math.random() * 300) + 200);
         rb.keyRelease('1');
     }
 
-    private void Reraise(){
+    private void Reraise() {
         rb.keyPress('1');
-        rb.delay((int)Math.random()*300+200);
+        rb.delay((int) (Math.random() * 300) + 200);
         rb.keyRelease('1');
     }
 
-    public void move (int num){
-        if (num==10) Fold();
-        else if (num==1) {
-            if (checkCheck(r))Check();
+    public void move(int num) {
+        if (num == 10) Fold();
+        else if (num == 1) {
+            if (checkCheck(r)) Check();
             else Fold();
-        }
-        else if (num == 2) Call();
+        } else if (num == 2) Call();
         else if (num == 3) Raise();
         else if (num == 4) Reraise();
+    }
+
+    public boolean canBack(BufferedImage r) {
+        if (((r.getRGB(x + 395, y + 425) & 0x00ff0000) >> 16) < 100 &&
+                ((r.getRGB(x + 564, y + 413) & 0x00ff0000) >> 16) > 150) return true;
+        else return false;
+
+    }
+
+    public void Open() {
+        int x= (int) (Math.random() * 200) + 700;
+        int y = getYOpen()-(int) (Math.random() * 200);
+        rb.mouseMove(x, y);
+        rb.mousePress(InputEvent.BUTTON1_MASK);
+        rb.delay((int) (Math.random() * 300 + 200));
+        rb.mouseRelease(InputEvent.BUTTON1_MASK);
+    }
+
+    private int getYOpen() {
+        int y = 0, x = 765;
+        for (int i = 820; i > 550; i--) {
+            if (((r.getRGB(x, i) & 0x00ff0000) >> 16) < 100) {
+                y = i;
+                break;
+            }
+        }
+        return y;
+    }
+
+    public void pause() {
+        int x, y;
+        x = (int) (Math.random() * 4) + this.x + 16;
+        y = (int) (Math.random() * 4) + this.y + 361;
+        rb.mouseMove(x, y);
+        rb.mousePress(InputEvent.BUTTON1_MASK);
+        rb.delay((int) (Math.random() * 300 + 200));
+        rb.mouseRelease(InputEvent.BUTTON1_MASK);
+        int i = (int) (Math.random() * 4);
+        if (i == 0) {
+            x = this.x + 45 + (int) (Math.random() * 105);
+            y = this.y + 55 + (int) (Math.random() * 45);
+        } else if (i == 1) {
+            x = this.x + 15 + (int) (Math.random() * 65);
+            y = this.y + 250 + (int) (Math.random() * 40);
+        } else if (i == 2) {
+            x = this.x + 480 + (int) (Math.random() * 140);
+            y = this.y + 55 + (int) (Math.random() * 25);
+        } else {
+            x = this.x + 560 + (int) (Math.random() * 60);
+            y = this.y + 250 + (int) (Math.random() * 100);
+        }
+        rb.mouseMove(x, y);
+    }
+
+    public void close() {
+        int x, y;
+        x = (int) (Math.random() * 35) + this.x + 590;
+        y = (int) (Math.random() * 5) + this.y + 10;
+        rb.mouseMove(x, y);
+        rb.mousePress(InputEvent.BUTTON1_MASK);
+        rb.delay((int) (Math.random() * 300 + 200));
+        rb.mouseRelease(InputEvent.BUTTON1_MASK);
+        int i = (int) (Math.random() * 4);
+        if (i == 0) {
+            x = this.x + 45 + (int) (Math.random() * 105);
+            y = this.y + 55 + (int) (Math.random() * 45);
+        } else if (i == 1) {
+            x = this.x + 15 + (int) (Math.random() * 65);
+            y = this.y + 250 + (int) (Math.random() * 40);
+        } else if (i == 2) {
+            x = this.x + 480 + (int) (Math.random() * 140);
+            y = this.y + 55 + (int) (Math.random() * 25);
+        } else {
+            x = this.x + 560 + (int) (Math.random() * 60);
+            y = this.y + 250 + (int) (Math.random() * 100);
+        }
+        rb.mouseMove(x, y);
     }
 }
