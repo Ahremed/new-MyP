@@ -32,6 +32,11 @@ public class MyP extends JFrame {
         JButton button2 = new JButton("Stop");
         panel.add(button1);
         panel.add(button2);
+        Font font1 = new Font("SansSerif", Font.BOLD, 20);
+        textField5 = new JTextField();
+        textField5.setFont(font1);
+        panel.add(textField5);
+        textField5.setColumns(10);
         textField = new JTextField();
         panel.add(textField);
         textField.setColumns(20);
@@ -44,9 +49,6 @@ public class MyP extends JFrame {
         textField4 = new JTextField();
         panel.add(textField4);
         textField4.setColumns(20);
-        textField5 = new JTextField();
-        panel.add(textField5);
-        textField5.setColumns(20);
         textField6 = new JTextField();
         panel.add(textField6);
         textField6.setColumns(20);
@@ -157,6 +159,7 @@ public class MyP extends JFrame {
                 frame.setLocationRelativeTo(null);
                 frame.setVisible(true);
                 frame.setAlwaysOnTop(true);
+                frame.setResizable(false);
             }
         });
     }
