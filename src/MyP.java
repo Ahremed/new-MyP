@@ -20,12 +20,12 @@ public class MyP extends JFrame {
     private BufferedImage image;
     private Rectangle rect = new Rectangle(0, 0, 1280, 1024);
 
-    public MyP() {
+    private MyP() {
         super("MyP");
         createGUI();
     }
 
-    public void createGUI() {
+    private void createGUI() {
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         JPanel panel = new JPanel();
         JButton button1 = new JButton("Start");
@@ -62,27 +62,27 @@ public class MyP extends JFrame {
         setPreferredSize(new Dimension(250, 250));
     }
 
-    public class TestActionListener implements ActionListener {
+    private class TestActionListener implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent e) {
             synchronized (this) {
                 try {pl.start();
                 paused.set(false);}
-                catch (Exception a){}
+                catch (Exception a){a.printStackTrace();}
             }
         }
     }
 
-    public class TestActionListener2 implements ActionListener {
+    private class TestActionListener2 implements ActionListener {
         public void actionPerformed(ActionEvent e) {
-            if (paused.get()) {
-                try {paused.set(false);
+            if (!paused.get()) {
+                try {paused.set(true);
                 pl.suspend();}
-                catch (Exception a){}
+                catch (Exception a){a.printStackTrace();}
             } else {
-                try{paused.set(true);
+                try{paused.set(false);
                 pl.resume();}
-                catch (Exception a){}
+                catch (Exception a){a.printStackTrace();}
             }
             textField2.setText(String.valueOf(paused));
         }
@@ -111,7 +111,7 @@ public class MyP extends JFrame {
                 if (table1.checkOpen(image)) {
                     try {
                         if (table1.checkFold(image)) {
-                            sleep(750);
+                            sleep(500);
                             image = r.createScreenCapture(rect);
                         }
                     } catch (Exception e) {
@@ -123,8 +123,7 @@ public class MyP extends JFrame {
                             + table1.getRaise(image));
                     table1.getMyCards(image);
                     textField4.setText(String.valueOf(table1.myCards.get(0).getValue()) + table1.myCards.get(0).getSuit() +
-                            +table1.myCards.get(1).getValue() + table1.myCards.get(1).getSuit()
-                            + " Back = " + table1.canBack(image));
+                            +table1.myCards.get(1).getValue() + table1.myCards.get(1).getSuit());
                     textField5.setText("");
                     textField.setText("Rnd = " + table1.getRnd(image) + " First = "
                             + table1.firstMove(image));
@@ -138,12 +137,12 @@ public class MyP extends JFrame {
                     if (table1.getRnd(image) > 1) textField6.setText("Comb = " + table1.getCombination() + st);
                     //if (!table1.isTableActive(image)&&table1.checkOpen(image)) table1.ActiveTable();
                     try {
-                        sleep(500);
+                        sleep(200);
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
                 } else {
-       //             if (!CPause.isSelected()) table1.Open();
+                    //  if (!CPause.isSelected()) table1.Open();
                 }
             }
         }

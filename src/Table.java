@@ -1035,13 +1035,11 @@ public class Table {
                             if (maxs != cm1 && maxs != cm1 && cmb > 3) rs = 1;
                             if (cmb > 6) rs = 1;
                         } else {
-
-                            if (z3 == 0 && z4 == 0 && cmb > 0 && mc1 + mc2 >= 26 && pot <= 5) rs = 1;
-                            if (z3 == 0 && z4 == 0 && cmb > 2) rs = 1;
+                            if (z3 == 0 && cmb > 0 && pot <= 25) rs = 1;
+                            if (z3 == 0 && cmb > 0) rs = 1;
                             if (z3 == 1 && cmb > 0) rs = 1;
                             if (z3 == 3 && cmb > 7) rs = 1;
                         }
-
                     } else {
                         if (mac == 3) {
                             if (maxs != cm1 && maxs != cm1 && cmb > 3) rrs = 1;
@@ -1057,11 +1055,8 @@ public class Table {
                             if (z3 == 1 && cmb > 3) cll = 1;
                             if (z3 == 1 && cmb > 3) rrs = 1;
                             if (z3 == 3 && cmb > 6) rrs = 1;
-                            if (z3 == 0 && z4 == 0 && cmb > 0 &&
-                                    (sumcll / pot) < 0.35) cll = 1;
-                            if (z3 == 1 && z4 == 0 && cmb > 0 &&
-                                    (sumcll / pot) < 0.35) cll = 1;
-
+                            if (z3 == 0 && z4 == 0 && cmb > 0 &&  (sumcll / pot) < 0.35) cll = 1;
+                            if (z3 == 1 && z4 == 0 && cmb > 0 && (sumcll / pot) < 0.35) cll = 1;
                         }
                     }
                 }
@@ -1166,7 +1161,6 @@ public class Table {
                             if (maxs == cm1 && mc1 > 11 && (sumcll / pot) < (45 / 100)) cll = 1;
                             if (maxs == cm2 && mc2 > 11 && (sumcll / pot) < (45 / 100)) cll = 1;
                             if (maxs == cm1 && mc1 > 11 && cmb > 1) rrs = 1;
-                            if (maxs == cm2 && mc2 > 11 && cmb > 1) rrs = 1;
                             if (cmb > 3 && (sumcll / pot) < (4 / 10)) cll = 1;
                         }
                         if (mac < 3) {
@@ -1183,11 +1177,7 @@ public class Table {
                             if (z3 == 0 && z4 == 0 && cmb == 1 && mc2 == mbrd
                                     && mc1 > 11 && sumcll / pot <= 3 / 10) cll = 1;
                             if (z3 == 0 && z4 == 0 && cmb == 2 && mc1 + mc2 >= 24) rrs = 1;
-                            if (z3 == 0 && z4 == 0 && cmb == 2 && mc1 + mc2 >= 24) rrs = 1;
-                            if (z3 == 0 && z4 == 0 && cmb == 2 && mc1 + mc2 >= 24) rrs = 1;
                             if (z3 == 0 && z4 == 0 && cmb > 2) rrs = 1;
-                            if (z3 == 0 && z4 == 0 && cmb > 2) rrs = 1;
-                            if (z3 == 0 && z4 == 0 && cmb > 4) rrs = 1;
                             if (z3 == 1 && cmb > 0 && sumcll / pot < 0.36) cll = 1;
                             if (z3 == 1 && cmb >= 4) rrs = 1;
                             if (z3 == 3 && cmb > 7) rrs = 1;
@@ -1566,8 +1556,12 @@ public class Table {
 
     public void Open() {
         int x= (int) (Math.random() * 200) + 700;
-        int y = getYOpen()-(int) (Math.random() * 200);
+        int y = getYOpen()-(int) (Math.random() * 20);
         rb.mouseMove(x, y);
+        rb.mousePress(InputEvent.BUTTON1_MASK);
+        rb.delay((int) (Math.random() * 300 + 200));
+        rb.mouseRelease(InputEvent.BUTTON1_MASK);
+        rb.delay((int) (Math.random() * 500 + 200));
         rb.mousePress(InputEvent.BUTTON1_MASK);
         rb.delay((int) (Math.random() * 300 + 200));
         rb.mouseRelease(InputEvent.BUTTON1_MASK);
