@@ -11,7 +11,7 @@ import java.util.Random;
 /**
  * Created by Vladyslav on 09.01.2016.
  */
-public class Table {
+class Table {
     private int x, y;
     private ArrayList<Card> lastCards;
     private int lastPos, lastrnd;
@@ -63,7 +63,7 @@ public class Table {
         if ((color & 0x00ff0000) >> 16 > 150) position = 1;
         color = r.getRGB(x + 417, y + 127);
         if ((color & 0x00ff0000) >> 16 > 150) position = 2;
-        color = r.getRGB(x + 342, y + 127);
+        color = r.getRGB(x + 236, y + 128);
         if ((color & 0x00ff0000) >> 16 > 150) position = 3;
         color = r.getRGB(x + 154, y + 165);
         if ((color & 0x00ff0000) >> 16 > 150) position = 4;
@@ -90,7 +90,7 @@ public class Table {
         int ops = 0;
 
 
-        int[] x1 = {x + 517, x + 586, x + 556, x + 432, x + 246, x + 84, x + 45, x + 115};
+        int[] x1 = {x + 517, x + 580, x + 556, x + 432, x + 246, x + 84, x + 45, x + 115};
         int[] y1 = {y + 291, y + 200, y + 110, y + 67, y + 66, y + 104, y + 193, y + 287};
 
         for (int i = 0; i < readPos(r) - 1; i++) {
@@ -151,7 +151,7 @@ public class Table {
 
     public int getStack(BufferedImage r) {
         int stack = 0;
-        int color = r.getRGB(292, 358);
+        int color = r.getRGB(292 + x, 358 + y);
         if ((color & 0x0000ff00) >> 8 > 100)  //===============не целое
         {
             stack += readNumSt(296 + x, 355 + y, r) * 100;
@@ -281,8 +281,8 @@ public class Table {
 
     public boolean checkOpen(BufferedImage r) {
         boolean open;
-        if (((r.getRGB(x + 100, y + 3) & 0x00ff0000) >> 16) > 150) open = false;
-        else open = true;
+        if (((r.getRGB(x + 609, y + 9) & 0x00ff0000) >> 16) > 200) open = true;
+        else open = false;
         return open;
     }
 
@@ -325,9 +325,9 @@ public class Table {
 
     public int getPot(BufferedImage r) {
         int pot = 0;
-        pot += getNumPot(getXPot(1, r) + x, 153 + y, r) * 100;
-        pot += getNumPot(getXPot(2, r) + x, 153 + y, r) * 10;
-        pot += getNumPot(getXPot(3, r) + x, 153 + y, r);
+        pot += getNumPot(getXPot(1, r), 153 + y, r) * 100;
+        pot += getNumPot(getXPot(2, r), 153 + y, r) * 10;
+        pot += getNumPot(getXPot(3, r), 153 + y, r);
         return pot;
     }
 
@@ -420,7 +420,7 @@ public class Table {
 
     public int getRaise(BufferedImage r) {
         int cll = 0;
-        int y = 441;
+        int y = 441 + this.y;
         cll += getNumRs(getXRs(1, r), y, r) * 100;
         cll += getNumRs(getXRs(2, r), y, r) * 10;
         cll += getNumRs(getXRs(3, r), y, r);
@@ -497,7 +497,7 @@ public class Table {
             }
         }
         if (q == 3) {
-            for (int i = 585 + x; i < 589 + x; i++) {
+            for (int i = 584 + x; i < 589 + x; i++) {
                 for (int j = 440 + y; j < 450 + y; j++) {
                     if (((r.getRGB(i, j) & 0x00ff0000) >> 16) > 250) {
                         num = i;
@@ -538,7 +538,7 @@ public class Table {
             }
         }
         if (q == 3) {
-            for (int i = 585 + x - 107; i < 589 + x - 107; i++) {
+            for (int i = 584 + x - 107; i < 589 + x - 107; i++) {
                 for (int j = 440 + y; j < 450 + y; j++) {
                     if (((r.getRGB(i, j) & 0x00ff0000) >> 16) > 250) {
                         num = i;
@@ -555,10 +555,14 @@ public class Table {
 
     public int getCall(BufferedImage r) {
         int cll = 0;
-        int y = 441;
-        cll += getNumRs(getXCll(1, r), y, r) * 100;
-        cll += getNumRs(getXCll(2, r), y, r) * 10;
-        cll += getNumRs(getXCll(3, r), y, r);
+        if (((r.getRGB(450 + x, 425 + y) & 0x00ff0000) >> 16) < 100
+                && ((r.getRGB(550 + x, 425 + y) & 0x00ff0000) >> 16) > 100) cll = getRaise(r);
+        else {
+            int y = 441 + this.y;
+            cll += getNumRs(getXCll(1, r), y, r) * 100;
+            cll += getNumRs(getXCll(2, r), y, r) * 10;
+            cll += getNumRs(getXCll(3, r), y, r);
+        }
         return cll;
     }
 
@@ -879,14 +883,15 @@ public class Table {
                             if (mc1 == mc2 && mc1 + mc2 >= 24 && sumcll <= 8 ||
                                     mc1 == mc2 && mc1 + mc2 >= 26) rrs = 1;
                             if (mc1 == mc2 && mc1 + mc2 >= 16 && brrs == 0 && ops >= 2 && sumcll <= 8) cll = 1;
+                            if (mc1 == mc2 && brrs == 0 && mc1 + mc2 >= 16 && sumcll <= 6) cll = 1;
                             if (mc1 + mc2 >= 26 && sumcll <= 10) cll = 1;
        /* if (mp==9 && ops==1 && sumcll<=7/100){
-        if (ops1[1]>0) 
+        if (ops1[1]>0)
                 {
         if ((mc1+mc2)>=25 && (mc1=14) or (mc2=14))   rrs=1;
         if (mc1=mc2) &&(mc1+mc2>=14)   rrs=1;
         };
-        if (ops1[2]>0) or (ops1[3]>0) 
+        if (ops1[2]>0) or (ops1[3]>0)
                 {
         if ((mc1+mc2)>=25 && (mc1=14) or (mc2=14))   rrs=1;
         if (mc1=mc2) &&(mc1+mc2>=14)   rrs=1;
@@ -901,6 +906,7 @@ public class Table {
                     }
                 } else {                        //=====early position
                     if (ops == 0) {                              //======0 ops
+                        if (mp > 3 && mc1 + mc2 >= 25) rs1 = 1;
                         if (mc1 + mc2 >= 25 && (mc1 == 14 || mc2 == 14)) rs1 = 1;
                         if (mc1 == mc2 && mc1 + mc2 >= 14 && mp <= 3) rs1 = 1;
                         if (mc1 == mc2 && mc1 + mc2 >= 12 && mp > 3) rs1 = 1;
@@ -1005,22 +1011,14 @@ public class Table {
                                     && sumcll / pot <= 35 / 100 && mc1 > 12) cll = 1;
                             if (mac == 2 && z4 == 0 && z3 <= 1 && maxs == cm1 && maxs == cm2
                                     && sumcll / pot <= 35 / 100 && mc2 > 12) cll = 1;
-                            if (z3 == 0 && z4 == 0 && cmb == 1 && mc1 == mbrd &&
-                                    mc2 > 11) rrs = 1;
                             if (z3 == 0 && z4 == 0 && cmb == 1 && mc1 == mbrd
-                                    && mc2 > 11 && sumcll / pot <= 3 / 10) cll = 1;
+                                    && mc2 >= 11 && sumcll / pot <= 4 / 10) cll = 1;
                             if (z3 == 0 && z4 == 0 && cmb == 1 && mc2 == mbrd
-                                    && mc1 > 11) rrs = 1;
-                            if (z3 == 0 && z4 == 0 && cmb == 1 && mc2 == mbrd
-                                    && mc1 > 11 && sumcll / pot <= 3 / 10) cll = 1;
-                            if (z3 == 0 && z4 == 0 && cmb == 2 && mc1 + mc2 >= 24) rrs = 1;
-                            if (z3 == 0 && z4 == 0 && cmb == 2 && mc1 + mc2 >= 24) rrs = 1;
+                                    && mc1 >= 11 && sumcll / pot <= 4 / 10) cll = 1;
                             if (z3 == 0 && z4 == 0 && cmb == 2 && mc1 + mc2 >= 24) rrs = 1;
                             if (z3 == 0 && z4 == 0 && cmb > 2) rrs = 1;
-                            if (z3 == 0 && z4 == 0 && cmb > 2) rrs = 1;
-                            if (z3 == 0 && z4 == 0 && cmb > 4) rrs = 1;
                             if (z3 == 1 && cmb > 0 && sumcll / pot < 3 / 10) cll = 1;
-                            if (z3 == 1 && cmb > 0 && sumcll / pot <= 0.5 && sumcll <= 0.25) cll = 1;
+                            if (z3 == 1 && cmb > 0 && sumcll / pot <= 0.5 && sumcll <= 25) cll = 1;
                             if (z3 == 1 && cmb >= 4) rrs = 1;
                             if (z3 == 3 && cmb > 7) rrs = 1;
                             if (z3 == 0 && z4 == 0 && mc1 == mc2 && mc2 >= 12 && mc2 < mbrd
@@ -1082,7 +1080,7 @@ public class Table {
                             && mc2 > 11 && (sumcll / pot) < 0.3) cll = 1;
                     if (z3 == 0 && z4 == 0 && cmb == 1 && mc2 == mbrd
                             && mc1 > 11 && (sumcll / pot) < 0.3) cll = 1;
-                    if (z3 == 0 && z4 == 0 && cmb > 0 && (sumcll / pot) < 0.4) cll = 1;
+                    if (z3 == 0 && z4 == 0 && cmb > 0 && (sumcll / pot) < 0.35) cll = 1;
                     if (z3 == 0 && z4 == 0 && cmb > 2) rrs = 1;
                     if (z3 == 1 && cmb > 0 && cmb < 4 && (sumcll / pot) < (35 / 100)) cll = 1;
                     if (z3 == 1 && cmb > 3) rrs = 1;
@@ -1246,14 +1244,8 @@ public class Table {
                             && sumcll / pot <= (45 / 100) && cmb > 0) cll = 1;
                     if (maxs == cm2 && mc2 > 11 && z3 == 0 && z4 == 0
                             && (sumcll / pot) <= (45 / 100) && cmb > 0) cll = 1;
-                    if (maxs == cm1 && mc1 > 11 && z3 == 1 && z4 == 0 && (sumcll / pot) <= (30 / 100)
-                            && cmb > 0) cll = 1;
-                    if (maxs == cm2 && mc2 > 11 && z3 == 1 && z4 == 0 && (sumcll / pot) <= (30 / 100)
-                            && cmb > 0) cll = 1;
-                    if (maxs == cm1 && mc1 > 11 && z3 == 1 && z4 == 0 && (sumcll / pot) <= (45 / 100)
-                            && cmb > 0 && cmb > 0) cll = 1;
-                    if (maxs == cm2 && mc2 > 11 && z3 == 1 && z4 == 0 && (sumcll / pot) <= (45 / 100)
-                            && cmb > 0 && cmb > 0) cll = 1;
+                    if (maxs == cm1 && mc1 > 11 && z3 == 1 && z4 == 0 && (sumcll / pot) <= (30 / 100)) cll = 1;
+                    if (maxs == cm2 && mc2 > 11 && z3 == 1 && z4 == 0 && (sumcll / pot) <= (30 / 100)) cll = 1;
                     if (z3 == 0 && z4 == 0 && cmb > 0 && (sumcll / pot) <= (25 / 100) && sumcll <= 30) cll = 1;
                     if (z3 == 0 && z4 == 0 && cmb > 2 && (sumcll / pot) <= (30 / 100)) cll = 1;
                     if (z3 == 0 && z4 == 0 && cmb > 4) rrs = 1;
@@ -1443,11 +1435,6 @@ public class Table {
             }
         }
 
-        lastpot = pot;
-        lastPos = mp;
-        lastCards = myCards;
-        lastrnd = rnd;
-
         if (rrs > 0) {
             if (rnd == 1) rmv[0] = 4;
             else rmv[rnd - 2] = 4;
@@ -1477,74 +1464,87 @@ public class Table {
 
     public void ActiveTable() {
         int x, y;
-        int i = (int) (Math.random() * 4);
-        if (i == 0) {
-            x = this.x + 45 + (int) (Math.random() * 105);
-            y = this.y + 55 + (int) (Math.random() * 45);
-        } else if (i == 1) {
+        if (this.x > 600) {
             x = this.x + 15 + (int) (Math.random() * 65);
             y = this.y + 250 + (int) (Math.random() * 40);
-        } else if (i == 2) {
-            x = this.x + 480 + (int) (Math.random() * 140);
-            y = this.y + 55 + (int) (Math.random() * 25);
         } else {
             x = this.x + 560 + (int) (Math.random() * 60);
             y = this.y + 250 + (int) (Math.random() * 100);
         }
-
         rb.mouseMove(x, y);
-        rb.mousePress(InputEvent.BUTTON1_MASK);
         rb.delay((int) (Math.random() * 300 + 200));
-        rb.mouseRelease(InputEvent.BUTTON1_MASK);
     }
 
     public boolean isTableActive(BufferedImage r) {
-        int x, y;
-        y = this.y + 265;
-        if (this.x < 100) x = 638;
-        else x = 641;
-        if ((r.getRGB(x, y) & 0x000000ff) > 200) return true;
+        if ((r.getRGB(x + 180, y + 31) & 0x0000ff00) >> 8 > 100) return true;
         else return false;
     }
 
     private void Fold() {
-        rb.keyPress('1');
+        rb.keyPress('D');
         rb.delay((int) (Math.random() * 300) + 200);
-        rb.keyRelease('1');
+        rb.keyRelease('D');
     }
 
     private void Check() {
-        rb.keyPress('1');
+        rb.keyPress('W');
         rb.delay((int) (Math.random() * 300) + 200);
-        rb.keyRelease('1');
+        rb.keyRelease('W');
     }
 
     private void Call() {
-        rb.keyPress('1');
+        rb.keyPress('S');
         rb.delay((int) (Math.random() * 300) + 200);
-        rb.keyRelease('1');
+        rb.keyRelease('S');
     }
 
     private void Raise() {
-        rb.keyPress('1');
+        rb.keyPress('E');
         rb.delay((int) (Math.random() * 300) + 200);
-        rb.keyRelease('1');
+        rb.keyRelease('E');
     }
 
     private void Reraise() {
-        rb.keyPress('1');
+        rb.keyPress('A');
         rb.delay((int) (Math.random() * 300) + 200);
-        rb.keyRelease('1');
+        rb.keyRelease('A');
+    }
+
+    private void Allin() {
+        rb.keyPress('Q');
+        rb.delay((int) (Math.random() * 300) + 200);
+        rb.keyRelease('Q');
     }
 
     public void move(int num) {
+        if (num>0&&!isTableActive(r)) ActiveTable();
+        int ms = getStack(r),
+                pot = getPot(r),
+                pos = readPos(r),
+                rnd = getRnd(r);
+        if (num > 0) {
+            lastpot = pot;
+            lastPos = pos;
+            lastCards = myCards;
+            lastrnd = rnd;
+        }
         if (num == 10) Fold();
         else if (num == 1) {
             if (checkCheck(r)) Check();
             else Fold();
         } else if (num == 2) Call();
-        else if (num == 3) Raise();
-        else if (num == 4) Reraise();
+        else if (num == 3 && pot*0.6 >= ms / 2) Allin();
+        else if (num == 3 && rnd == 1 && pos != 8) Reraise();
+        else if (num == 3 && rnd == 1) Raise1();
+        else if (num == 3 && rnd > 1) Raise();
+        else if (num == 4 && pot*0.9 >= ms / 2) Allin();
+        else if (num == 4) Raise();
+    }
+
+    private void Raise1() {
+        rb.keyPress('R');
+        rb.delay((int) (Math.random() * 300) + 200);
+        rb.keyRelease('R');
     }
 
     public boolean canBack(BufferedImage r) {
@@ -1557,24 +1557,26 @@ public class Table {
     public void Open() {
         int x= (int) (Math.random() * 200) + 700;
         int y = getYOpen()-(int) (Math.random() * 20);
-        rb.mouseMove(x, y);
+        rb.mouseMove(x,y);
         rb.mousePress(InputEvent.BUTTON1_MASK);
-        rb.delay((int) (Math.random() * 300 + 200));
+        rb.delay((int) (Math.random() * 100 + 200));
         rb.mouseRelease(InputEvent.BUTTON1_MASK);
-        rb.delay((int) (Math.random() * 500 + 200));
+        rb.delay((int) (Math.random() * 200 + 100));
         rb.mousePress(InputEvent.BUTTON1_MASK);
-        rb.delay((int) (Math.random() * 300 + 200));
+        rb.delay((int) (Math.random() * 100 + 200));
         rb.mouseRelease(InputEvent.BUTTON1_MASK);
+        rb.delay((int) (Math.random() * 500 + 1000));
     }
 
     private int getYOpen() {
         int y = 0, x = 765;
         for (int i = 820; i > 550; i--) {
-            if (((r.getRGB(x, i) & 0x00ff0000) >> 16) < 100) {
+            if (((r.getRGB(x, i) & 0x00ff0000) >> 16) < 200) {
                 y = i;
                 break;
             }
         }
+        System.out.println(" Y = "+y);
         return y;
     }
 
@@ -1607,6 +1609,31 @@ public class Table {
         int x, y;
         x = (int) (Math.random() * 35) + this.x + 590;
         y = (int) (Math.random() * 5) + this.y + 10;
+        rb.mouseMove(x, y);
+        rb.mousePress(InputEvent.BUTTON1_MASK);
+        rb.delay((int) (Math.random() * 300 + 200));
+        rb.mouseRelease(InputEvent.BUTTON1_MASK);
+        int i = (int) (Math.random() * 4);
+        if (i == 0) {
+            x = this.x + 45 + (int) (Math.random() * 105);
+            y = this.y + 55 + (int) (Math.random() * 45);
+        } else if (i == 1) {
+            x = this.x + 15 + (int) (Math.random() * 65);
+            y = this.y + 250 + (int) (Math.random() * 40);
+        } else if (i == 2) {
+            x = this.x + 480 + (int) (Math.random() * 140);
+            y = this.y + 55 + (int) (Math.random() * 25);
+        } else {
+            x = this.x + 560 + (int) (Math.random() * 60);
+            y = this.y + 250 + (int) (Math.random() * 100);
+        }
+        rb.mouseMove(x, y);
+    }
+
+    public void resume() {
+        int x, y;
+        x = (int) (Math.random() * 122) + this.x + 488;
+        y = (int) (Math.random() * 19) + this.y + 404;
         rb.mouseMove(x, y);
         rb.mousePress(InputEvent.BUTTON1_MASK);
         rb.delay((int) (Math.random() * 300 + 200));
